@@ -477,9 +477,37 @@ type VirtualEnvironmentVMListResponseData struct {
 	ACPI *CustomBool `json:"acpi,omitempty" url:"acpi,omitempty,int"`
 }
 
+// VirtualEnvironmentVMMoveDiskRequestBody contains the body for a VM move disk request.
+type VirtualEnvironmentVMMoveDiskRequestBody struct {
+	BandwidthLimit      *int        `json:"bwlimit,omitempty" url:"bwlimit,omitempty"`
+	DeleteOriginalDisk  *CustomBool `json:"delete,omitempty,int" url:"delete,omitempty,int"`
+	Digest              *string     `json:"digest,omitempty" url:"digest,omitempty"`
+	Disk                string      `json:"disk" url:"disk"`
+	TargetStorage       string      `json:"storage" url:"storage"`
+	TargetStorageFormat *string     `json:"format,omitempty" url:"format,omitempty"`
+}
+
+// VirtualEnvironmentVMMoveDiskResponseBody contains the body from a VM move disk response.
+type VirtualEnvironmentVMMoveDiskResponseBody struct {
+	Data *string `json:"data,omitempty"`
+}
+
 // VirtualEnvironmentVMRebootRequestBody contains the body for a VM reboot request.
 type VirtualEnvironmentVMRebootRequestBody struct {
 	Timeout *int `json:"timeout,omitempty" url:"timeout,omitempty"`
+}
+
+// VirtualEnvironmentVMRebootResponseBody contains the body from a VM reboot response.
+type VirtualEnvironmentVMRebootResponseBody struct {
+	Data *string `json:"data,omitempty"`
+}
+
+// VirtualEnvironmentVMResizeDiskRequestBody contains the body for a VM resize disk request.
+type VirtualEnvironmentVMResizeDiskRequestBody struct {
+	Digest   *string     `json:"digest,omitempty" url:"digest,omitempty"`
+	Disk     string      `json:"disk" url:"disk"`
+	Size     string      `json:"size" url:"size"`
+	SkipLock *CustomBool `json:"skiplock,omitempty,int" url:"skiplock,omitempty,int"`
 }
 
 // VirtualEnvironmentVMShutdownRequestBody contains the body for a VM shutdown request.
@@ -488,6 +516,26 @@ type VirtualEnvironmentVMShutdownRequestBody struct {
 	KeepActive *CustomBool `json:"keepActive,omitempty,int" url:"keepActive,omitempty,int"`
 	SkipLock   *CustomBool `json:"skipLock,omitempty,int" url:"skipLock,omitempty,int"`
 	Timeout    *int        `json:"timeout,omitempty" url:"timeout,omitempty"`
+}
+
+// VirtualEnvironmentVMShutdownResponseBody contains the body from a VM shutdown response.
+type VirtualEnvironmentVMShutdownResponseBody struct {
+	Data *string `json:"data,omitempty"`
+}
+
+// VirtualEnvironmentVMStartResponseBody contains the body from a VM start response.
+type VirtualEnvironmentVMStartResponseBody struct {
+	Data *string `json:"data,omitempty"`
+}
+
+// VirtualEnvironmentVMStopResponseBody contains the body from a VM stop response.
+type VirtualEnvironmentVMStopResponseBody struct {
+	Data *string `json:"data,omitempty"`
+}
+
+// VirtualEnvironmentVMUpdateAsyncResponseBody contains the body from a VM async update response.
+type VirtualEnvironmentVMUpdateAsyncResponseBody struct {
+	Data *string `json:"data,omitempty"`
 }
 
 // VirtualEnvironmentVMUpdateRequestBody contains the data for an virtual machine update request.

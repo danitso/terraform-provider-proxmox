@@ -1,5 +1,9 @@
 ## 0.4.0 (UNRELEASED)
 
+ENHANCEMENTS:
+
+* resource/virtual_environment_vm: Add support for changing `disk.datastore_id` and `disk.size` without re-creating the VM
+
 BUG FIXES:
 
 * library/virtual_environment_nodes: Fix node IP address format
