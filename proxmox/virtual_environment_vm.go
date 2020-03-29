@@ -131,7 +131,24 @@ func (c *VirtualEnvironmentClient) GetVMStatus(nodeName string, vmID int) (*Virt
 }
 
 // MoveVMDisk moves a virtual machine disk.
-func (c *VirtualEnvironmentClient) MoveVMDisk(nodeName string, vmID int, d *VirtualEnvironmentVMMoveDiskRequestBody) (*string, error) {
+func (c *VirtualEnvironmentClient) MoveVMDisk(nodeName string, vmID int, d *VirtualEnvironmentVMMoveDiskRequestBody) error {
+	taskID, err := c.MoveVMDiskAsync(nodeName, vmID, d)
+
+	if err != nil {
+		return err
+	}
+
+	err = c.WaitForNodeTask(nodeName, *taskID, 86400, 5)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MoveVMDiskAsync moves a virtual machine disk asynchronously.
+func (c *VirtualEnvironmentClient) MoveVMDiskAsync(nodeName string, vmID int, d *VirtualEnvironmentVMMoveDiskRequestBody) (*string, error) {
 	resBody := &VirtualEnvironmentVMMoveDiskResponseBody{}
 	err := c.DoRequest(hmPOST, fmt.Sprintf("nodes/%s/qemu/%d/move_disk", url.PathEscape(nodeName), vmID), d, resBody)
 
