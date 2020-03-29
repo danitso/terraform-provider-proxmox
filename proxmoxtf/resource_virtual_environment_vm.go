@@ -1705,13 +1705,7 @@ func resourceVirtualEnvironmentVMCreateStart(d *schema.ResourceData, m interface
 	}
 
 	// Start the virtual machine and wait for it to reach a running state before continuing.
-	taskID, err := veClient.StartVM(nodeName, vmID)
-
-	if err != nil {
-		return err
-	}
-
-	err = veClient.WaitForNodeTask(nodeName, *taskID, 600, 5)
+	err = veClient.StartVM(nodeName, vmID)
 
 	if err != nil {
 		return err
@@ -3317,13 +3311,7 @@ func resourceVirtualEnvironmentVMUpdate(d *schema.ResourceData, m interface{}) e
 
 	if d.HasChange(mkResourceVirtualEnvironmentVMStarted) && !bool(template) {
 		if started {
-			taskID, err := veClient.StartVM(nodeName, vmID)
-
-			if err != nil {
-				return err
-			}
-
-			err = veClient.WaitForNodeTask(nodeName, *taskID, 600, 5)
+			err := veClient.StartVM(nodeName, vmID)
 
 			if err != nil {
 				return err
@@ -3332,16 +3320,10 @@ func resourceVirtualEnvironmentVMUpdate(d *schema.ResourceData, m interface{}) e
 			forceStop := proxmox.CustomBool(true)
 			shutdownTimeout := 300
 
-			taskID, err := veClient.ShutdownVM(nodeName, vmID, &proxmox.VirtualEnvironmentVMShutdownRequestBody{
+			err := veClient.ShutdownVM(nodeName, vmID, &proxmox.VirtualEnvironmentVMShutdownRequestBody{
 				ForceStop: &forceStop,
 				Timeout:   &shutdownTimeout,
 			})
-
-			if err != nil {
-				return err
-			}
-
-			err = veClient.WaitForNodeTask(nodeName, *taskID, 600, 5)
 
 			if err != nil {
 				return err
@@ -3415,16 +3397,10 @@ func resourceVirtualEnvironmentVMUpdateDiskLocationAndSize(d *schema.ResourceDat
 				forceStop := proxmox.CustomBool(true)
 				shutdownTimeout := 300
 
-				taskID, err := veClient.ShutdownVM(nodeName, vmID, &proxmox.VirtualEnvironmentVMShutdownRequestBody{
+				err := veClient.ShutdownVM(nodeName, vmID, &proxmox.VirtualEnvironmentVMShutdownRequestBody{
 					ForceStop: &forceStop,
 					Timeout:   &shutdownTimeout,
 				})
-
-				if err != nil {
-					return err
-				}
-
-				err = veClient.WaitForNodeTask(nodeName, *taskID, 600, 5)
 
 				if err != nil {
 					return err
@@ -3457,13 +3433,7 @@ func resourceVirtualEnvironmentVMUpdateDiskLocationAndSize(d *schema.ResourceDat
 		}
 
 		if (len(diskMoveBodies) > 0 || len(diskResizeBodies) > 0) && started && !template {
-			taskID, err := veClient.StartVM(nodeName, vmID)
-
-			if err != nil {
-				return err
-			}
-
-			err = veClient.WaitForNodeTask(nodeName, *taskID, 600, 5)
+			err := veClient.StartVM(nodeName, vmID)
 
 			if err != nil {
 				return err
@@ -3475,15 +3445,9 @@ func resourceVirtualEnvironmentVMUpdateDiskLocationAndSize(d *schema.ResourceDat
 	if reboot {
 		rebootTimeout := 300
 
-		taskID, err := veClient.RebootVM(nodeName, vmID, &proxmox.VirtualEnvironmentVMRebootRequestBody{
+		err := veClient.RebootVM(nodeName, vmID, &proxmox.VirtualEnvironmentVMRebootRequestBody{
 			Timeout: &rebootTimeout,
 		})
-
-		if err != nil {
-			return err
-		}
-
-		err = veClient.WaitForNodeTask(nodeName, *taskID, 600, 5)
 
 		if err != nil {
 			return err
@@ -3519,16 +3483,10 @@ func resourceVirtualEnvironmentVMDelete(d *schema.ResourceData, m interface{}) e
 		forceStop := proxmox.CustomBool(true)
 		shutdownTimeout := 300
 
-		taskID, err := veClient.ShutdownVM(nodeName, vmID, &proxmox.VirtualEnvironmentVMShutdownRequestBody{
+		err := veClient.ShutdownVM(nodeName, vmID, &proxmox.VirtualEnvironmentVMShutdownRequestBody{
 			ForceStop: &forceStop,
 			Timeout:   &shutdownTimeout,
 		})
-
-		if err != nil {
-			return err
-		}
-
-		err = veClient.WaitForNodeTask(nodeName, *taskID, 600, 5)
 
 		if err != nil {
 			return err

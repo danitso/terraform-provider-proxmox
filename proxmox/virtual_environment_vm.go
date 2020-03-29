@@ -152,7 +152,24 @@ func (c *VirtualEnvironmentClient) ListVMs() ([]*VirtualEnvironmentVMListRespons
 }
 
 // RebootVM reboots a virtual machine.
-func (c *VirtualEnvironmentClient) RebootVM(nodeName string, vmID int, d *VirtualEnvironmentVMRebootRequestBody) (*string, error) {
+func (c *VirtualEnvironmentClient) RebootVM(nodeName string, vmID int, d *VirtualEnvironmentVMRebootRequestBody) error {
+	taskID, err := c.RebootVMAsync(nodeName, vmID, d)
+
+	if err != nil {
+		return err
+	}
+
+	err = c.WaitForNodeTask(nodeName, *taskID, 1800, 5)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RebootVMAsync reboots a virtual machine asynchronously.
+func (c *VirtualEnvironmentClient) RebootVMAsync(nodeName string, vmID int, d *VirtualEnvironmentVMRebootRequestBody) (*string, error) {
 	resBody := &VirtualEnvironmentVMRebootResponseBody{}
 	err := c.DoRequest(hmPOST, fmt.Sprintf("nodes/%s/qemu/%d/status/reboot", url.PathEscape(nodeName), vmID), d, resBody)
 
@@ -173,7 +190,24 @@ func (c *VirtualEnvironmentClient) ResizeVMDisk(nodeName string, vmID int, d *Vi
 }
 
 // ShutdownVM shuts down a virtual machine.
-func (c *VirtualEnvironmentClient) ShutdownVM(nodeName string, vmID int, d *VirtualEnvironmentVMShutdownRequestBody) (*string, error) {
+func (c *VirtualEnvironmentClient) ShutdownVM(nodeName string, vmID int, d *VirtualEnvironmentVMShutdownRequestBody) error {
+	taskID, err := c.ShutdownVMAsync(nodeName, vmID, d)
+
+	if err != nil {
+		return err
+	}
+
+	err = c.WaitForNodeTask(nodeName, *taskID, 1800, 5)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ShutdownVMAsync shuts down a virtual machine asynchronously.
+func (c *VirtualEnvironmentClient) ShutdownVMAsync(nodeName string, vmID int, d *VirtualEnvironmentVMShutdownRequestBody) (*string, error) {
 	resBody := &VirtualEnvironmentVMShutdownResponseBody{}
 	err := c.DoRequest(hmPOST, fmt.Sprintf("nodes/%s/qemu/%d/status/shutdown", url.PathEscape(nodeName), vmID), d, resBody)
 
@@ -189,7 +223,24 @@ func (c *VirtualEnvironmentClient) ShutdownVM(nodeName string, vmID int, d *Virt
 }
 
 // StartVM starts a virtual machine.
-func (c *VirtualEnvironmentClient) StartVM(nodeName string, vmID int) (*string, error) {
+func (c *VirtualEnvironmentClient) StartVM(nodeName string, vmID int) error {
+	taskID, err := c.StartVMAsync(nodeName, vmID)
+
+	if err != nil {
+		return err
+	}
+
+	err = c.WaitForNodeTask(nodeName, *taskID, 1800, 5)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// StartVMAsync starts a virtual machine asynchronously.
+func (c *VirtualEnvironmentClient) StartVMAsync(nodeName string, vmID int) (*string, error) {
 	resBody := &VirtualEnvironmentVMStartResponseBody{}
 	err := c.DoRequest(hmPOST, fmt.Sprintf("nodes/%s/qemu/%d/status/start", url.PathEscape(nodeName), vmID), nil, resBody)
 
