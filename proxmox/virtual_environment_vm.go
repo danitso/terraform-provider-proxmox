@@ -272,8 +272,25 @@ func (c *VirtualEnvironmentClient) StartVMAsync(nodeName string, vmID int) (*str
 	return resBody.Data, nil
 }
 
-// StopVM stops a virtual machine immediately.
-func (c *VirtualEnvironmentClient) StopVM(nodeName string, vmID int) (*string, error) {
+// StopVM stops a virtual machine.
+func (c *VirtualEnvironmentClient) StopVM(nodeName string, vmID int) error {
+	taskID, err := c.StopVMAsync(nodeName, vmID)
+
+	if err != nil {
+		return err
+	}
+
+	err = c.WaitForNodeTask(nodeName, *taskID, 300, 5)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// StopVMAsync stops a virtual machine asynchronously.
+func (c *VirtualEnvironmentClient) StopVMAsync(nodeName string, vmID int) (*string, error) {
 	resBody := &VirtualEnvironmentVMStopResponseBody{}
 	err := c.DoRequest(hmPOST, fmt.Sprintf("nodes/%s/qemu/%d/status/stop", url.PathEscape(nodeName), vmID), nil, resBody)
 
