@@ -5,6 +5,7 @@
 package proxmoxtf
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -38,7 +39,7 @@ const (
 	dvResourceVirtualEnvironmentVMCPUType                           = "qemu64"
 	dvResourceVirtualEnvironmentVMCPUUnits                          = 1024
 	dvResourceVirtualEnvironmentVMDescription                       = ""
-	dvResourcevirtualEnvironmentVMDiskName                          = "scsci0"
+	dvResourcevirtualEnvironmentVMDiskInterface                     = ""
 	dvResourceVirtualEnvironmentVMDiskDatastoreID                   = "local-lvm"
 	dvResourceVirtualEnvironmentVMDiskFileFormat                    = "qcow2"
 	dvResourceVirtualEnvironmentVMDiskFileID                        = ""
@@ -111,7 +112,7 @@ const (
 	mkResourceVirtualEnvironmentVMCPUUnits                          = "units"
 	mkResourceVirtualEnvironmentVMDescription                       = "description"
 	mkResourceVirtualEnvironmentVMDisk                              = "disk"
-	mkResourcevirtualEnvironmentVMDiskName                          = "name"
+	mkResourcevirtualEnvironmentVMDiskInterface                     = "interface"
 	mkResourceVirtualEnvironmentVMDiskDatastoreID                   = "datastore_id"
 	mkResourceVirtualEnvironmentVMDiskFileFormat                    = "file_format"
 	mkResourceVirtualEnvironmentVMDiskFileID                        = "file_id"
@@ -434,18 +435,18 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 							mkResourceVirtualEnvironmentVMDiskDatastoreID: dvResourceVirtualEnvironmentVMDiskDatastoreID,
 							mkResourceVirtualEnvironmentVMDiskFileFormat:  dvResourceVirtualEnvironmentVMDiskFileFormat,
 							mkResourceVirtualEnvironmentVMDiskFileID:      dvResourceVirtualEnvironmentVMDiskFileID,
-							mkResourcevirtualEnvironmentVMDiskName:        dvResourcevirtualEnvironmentVMDiskName,
+							mkResourcevirtualEnvironmentVMDiskInterface:   dvResourcevirtualEnvironmentVMDiskInterface,
 							mkResourceVirtualEnvironmentVMDiskSize:        dvResourceVirtualEnvironmentVMDiskSize,
 						},
 					}, nil
 				},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						mkResourcevirtualEnvironmentVMDiskName: {
+						mkResourcevirtualEnvironmentVMDiskInterface: {
 							Type:        schema.TypeString,
 							Description: "The datastore name",
 							Optional:    true,
-							Default:     dvResourcevirtualEnvironmentVMDiskName,
+							Default:     dvResourcevirtualEnvironmentVMDiskInterface,
 						},
 						mkResourceVirtualEnvironmentVMDiskDatastoreID: {
 							Type:        schema.TypeString,
@@ -1291,35 +1292,75 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 	updateBody.Delete = delete
 
 	err = veClient.UpdateVM(nodeName, vmID, updateBody)
+	if err != nil {
+		return err
+	}
 
 	disk := d.Get(mkResourceVirtualEnvironmentVMDisk).([]interface{})
-	diskBlock := disk[0].(map[string]interface{})
-	diskName := diskBlock[mkResourcevirtualEnvironmentVMDiskName].(string)
-	dataStoreID := diskBlock[mkResourceVirtualEnvironmentVMDiskDatastoreID].(string)
-	diskSize := diskBlock[mkResourceVirtualEnvironmentVMDiskSize].(int)
 
-	deleteOriginalDisk := proxmox.CustomBool(true)
-	diskMoveBody := &proxmox.VirtualEnvironmentVMMoveDiskRequestBody{
-		DeleteOriginalDisk: &deleteOriginalDisk,
-		Disk:               diskName,
-		TargetStorage:      dataStoreID,
-	}
-
-	diskResizeBody := &proxmox.VirtualEnvironmentVMResizeDiskRequestBody{
-		Disk: diskName,
-		Size: fmt.Sprintf("%dG", diskSize),
-	}
-
-	err = veClient.MoveVMDisk(nodeName, vmID, diskMoveBody)
+	vmConfig, err := veClient.GetVM(nodeName, vmID)
 
 	if err != nil {
+		if strings.Contains(err.Error(), "HTTP 404") ||
+			(strings.Contains(err.Error(), "HTTP 500") && strings.Contains(err.Error(), "does not exist")) {
+			d.SetId("")
+
+			return nil
+		}
+
 		return err
 	}
 
-	err = veClient.ResizeVMDisk(nodeName, vmID, diskResizeBody)
+	allDiskInfo := getDiskInfo(vmConfig)
 
-	if err != nil {
-		return err
+	for i := range disk {
+
+		diskBlock := disk[i].(map[string]interface{})
+		diskInterface := diskBlock[mkResourcevirtualEnvironmentVMDiskInterface].(string)
+		dataStoreID := diskBlock[mkResourceVirtualEnvironmentVMDiskDatastoreID].(string)
+		diskSize := diskBlock[mkResourceVirtualEnvironmentVMDiskSize].(int)
+
+		currentDiskInfo := allDiskInfo[diskInterface]
+
+		if currentDiskInfo == nil {
+			return errors.New(fmt.Sprintf("Disk move failed, no disk named %s", diskInterface))
+		}
+
+		compareString := *currentDiskInfo.Size
+		compareSize := len(compareString)
+		compareNumber, err := strconv.Atoi(compareString[:compareSize-1])
+
+		if err != nil {
+			return errors.New(fmt.Sprintf("Disk resize failed, vm disk size could not be converted to int disk size = %s", *currentDiskInfo.Size))
+		}
+
+		if diskSize < compareNumber {
+			return errors.New(fmt.Sprintf("Disk resize fails requests size (%dG) is lower than current size (%s)", diskSize, *currentDiskInfo.Size))
+		}
+
+		deleteOriginalDisk := proxmox.CustomBool(true)
+		diskMoveBody := &proxmox.VirtualEnvironmentVMMoveDiskRequestBody{
+			DeleteOriginalDisk: &deleteOriginalDisk,
+			Disk:               diskInterface,
+			TargetStorage:      dataStoreID,
+		}
+
+		diskResizeBody := &proxmox.VirtualEnvironmentVMResizeDiskRequestBody{
+			Disk: diskInterface,
+			Size: fmt.Sprintf("%dG", diskSize),
+		}
+
+		err = veClient.MoveVMDisk(nodeName, vmID, diskMoveBody)
+
+		if err != nil {
+			return err
+		}
+
+		err = veClient.ResizeVMDisk(nodeName, vmID, diskResizeBody)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceVirtualEnvironmentVMCreateStart(d, m)
@@ -3404,7 +3445,7 @@ func resourceVirtualEnvironmentVMUpdateDiskLocationAndSize(d *schema.ResourceDat
 			diskNewBlock := diskNewEntries[i].(map[string]interface{})
 
 			diskOldDatastoreID := diskOldBlock[mkResourceVirtualEnvironmentVMDiskDatastoreID].(string)
-			diskOldName := diskOldBlock[mkResourcevirtualEnvironmentVMDiskName].(string)
+			diskOldName := diskOldBlock[mkResourcevirtualEnvironmentVMDiskInterface].(string)
 
 			diskNewDatastoreID := diskNewBlock[mkResourceVirtualEnvironmentVMDiskDatastoreID].(string)
 

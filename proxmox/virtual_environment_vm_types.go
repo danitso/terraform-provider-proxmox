@@ -162,6 +162,7 @@ type CustomStorageDevice struct {
 	MaxWriteSpeedMbps       *int        `json:"mbps_wr,omitempty" url:"mbps_wr,omitempty"`
 	Media                   *string     `json:"media,omitempty" url:"media,omitempty"`
 	Size                    *string     `json:"size,omitempty" url:"size,omitempty"`
+	Format                  *string     `json:"format,omitempty" url:"format,omitempty"`
 }
 
 // CustomStorageDevices handles QEMU SATA device parameters.
@@ -440,7 +441,22 @@ type VirtualEnvironmentVMGetResponseData struct {
 	USBDevices           *CustomUSBDevices             `json:"usb,omitempty"`
 	VGADevice            *CustomVGADevice              `json:"vga,omitempty"`
 	VirtualCPUCount      *int                          `json:"vcpus,omitempty"`
-	VirtualIODevices     *CustomVirtualIODevices       `json:"virtio,omitempty"`
+	VirtualIODevice0     *CustomStorageDevice          `json:"virtio0,omitempty"`
+	VirtualIODevice1     *CustomStorageDevice          `json:"virtio1,omitempty"`
+	VirtualIODevice2     *CustomStorageDevice          `json:"virtio2,omitempty"`
+	VirtualIODevice3     *CustomStorageDevice          `json:"virtio3,omitempty"`
+	VirtualIODevice4     *CustomStorageDevice          `json:"virtio4,omitempty"`
+	VirtualIODevice5     *CustomStorageDevice          `json:"virtio5,omitempty"`
+	VirtualIODevice6     *CustomStorageDevice          `json:"virtio6,omitempty"`
+	VirtualIODevice7     *CustomStorageDevice          `json:"virtio7,omitempty"`
+	VirtualIODevice8     *CustomStorageDevice          `json:"virtio8,omitempty"`
+	VirtualIODevice9     *CustomStorageDevice          `json:"virtio9,omitempty"`
+	VirtualIODevice10    *CustomStorageDevice          `json:"virtio10,omitempty"`
+	VirtualIODevice11    *CustomStorageDevice          `json:"virtio11,omitempty"`
+	VirtualIODevice12    *CustomStorageDevice          `json:"virtio12,omitempty"`
+	VirtualIODevice13    *CustomStorageDevice          `json:"virtio13,omitempty"`
+	VirtualIODevice14    *CustomStorageDevice          `json:"virtio14,omitempty"`
+	VirtualIODevice15    *CustomStorageDevice          `json:"virtio15,omitempty"`
 	VMGenerationID       *string                       `json:"vmgenid,omitempty"`
 	VMStateDatastoreID   *string                       `json:"vmstatestorage,omitempty"`
 	WatchdogDevice       *CustomWatchdogDevice         `json:"watchdog,omitempty"`
@@ -1545,6 +1561,8 @@ func (r *CustomStorageDevice) UnmarshalJSON(b []byte) error {
 				r.Media = &v[1]
 			case "size":
 				r.Size = &v[1]
+			case "format":
+				r.Format = &v[1]
 			}
 		}
 	}

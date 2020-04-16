@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/danitso/terraform-provider-proxmox/proxmox"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 )
@@ -368,6 +369,54 @@ func getVMIDValidator() schema.SchemaValidateFunc {
 
 		return
 	}
+}
+
+func getDiskInfo(data *proxmox.VirtualEnvironmentVMGetResponseData) map[string]*proxmox.CustomStorageDevice {
+	storageDevices := make(map[string]*proxmox.CustomStorageDevice)
+	storageDevices["ide0"] = data.IDEDevice0
+	storageDevices["ide1"] = data.IDEDevice1
+	storageDevices["ide2"] = data.IDEDevice2
+
+	storageDevices["sata0"] = data.SATADevice0
+	storageDevices["sata1"] = data.SATADevice1
+	storageDevices["sata2"] = data.SATADevice2
+	storageDevices["sata3"] = data.SATADevice3
+	storageDevices["sata4"] = data.SATADevice4
+	storageDevices["sata5"] = data.SATADevice5
+
+	storageDevices["scsi0"] = data.SCSIDevice0
+	storageDevices["scsi1"] = data.SCSIDevice1
+	storageDevices["scsi2"] = data.SCSIDevice2
+	storageDevices["scsi3"] = data.SCSIDevice3
+	storageDevices["scsi4"] = data.SCSIDevice4
+	storageDevices["scsi5"] = data.SCSIDevice5
+	storageDevices["scsi6"] = data.SCSIDevice6
+	storageDevices["scsi7"] = data.SCSIDevice7
+	storageDevices["scsi8"] = data.SCSIDevice8
+	storageDevices["scsi9"] = data.SCSIDevice9
+	storageDevices["scsi10"] = data.SCSIDevice10
+	storageDevices["scsi11"] = data.SCSIDevice11
+	storageDevices["scsi12"] = data.SCSIDevice12
+	storageDevices["scsi13"] = data.SCSIDevice13
+
+	storageDevices["virtio0"] = data.VirtualIODevice0
+	storageDevices["virtio1"] = data.VirtualIODevice1
+	storageDevices["virtio2"] = data.VirtualIODevice2
+	storageDevices["virtio3"] = data.VirtualIODevice3
+	storageDevices["virtio4"] = data.VirtualIODevice4
+	storageDevices["virtio5"] = data.VirtualIODevice5
+	storageDevices["virtio6"] = data.VirtualIODevice6
+	storageDevices["virtio7"] = data.VirtualIODevice7
+	storageDevices["virtio8"] = data.VirtualIODevice8
+	storageDevices["virtio9"] = data.VirtualIODevice9
+	storageDevices["virtio10"] = data.VirtualIODevice10
+	storageDevices["virtio11"] = data.VirtualIODevice11
+	storageDevices["virtio12"] = data.VirtualIODevice12
+	storageDevices["virtio13"] = data.VirtualIODevice13
+	storageDevices["virtio14"] = data.VirtualIODevice14
+	storageDevices["virtio15"] = data.VirtualIODevice15
+
+	return storageDevices
 }
 
 func testComputedAttributes(t *testing.T, s *schema.Resource, keys []string) {
