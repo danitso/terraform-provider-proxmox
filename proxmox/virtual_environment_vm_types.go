@@ -281,7 +281,7 @@ type VirtualEnvironmentVMCreateRequestBody struct {
 	USBDevices           CustomUSBDevices             `json:"usb,omitempty" url:"usb,omitempty"`
 	VGADevice            *CustomVGADevice             `json:"vga,omitempty" url:"vga,omitempty"`
 	VirtualCPUCount      *int                         `json:"vcpus,omitempty" url:"vcpus,omitempty"`
-	VirtualIODevices     CustomVirtualIODevices       `json:"virtio,omitempty" url:"virtio,omitempty"`
+	VirtualIODevices     CustomStorageDevices         `json:"virtio,omitempty" url:"virtio,omitempty"`
 	VMGenerationID       *string                      `json:"vmgenid,omitempty" url:"vmgenid,omitempty"`
 	VMID                 *int                         `json:"vmid,omitempty" url:"vmid,omitempty"`
 	VMStateDatastoreID   *string                      `json:"vmstatestorage,omitempty" url:"vmstatestorage,omitempty"`

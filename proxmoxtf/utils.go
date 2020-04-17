@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"testing"
 	"time"
+	"unicode"
 
 	"github.com/danitso/terraform-provider-proxmox/proxmox"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -200,6 +201,15 @@ func getKeyboardLayoutValidator() schema.SchemaValidateFunc {
 	}, false)
 }
 
+func diskDigitPrefix(s string) string {
+	for i, r := range s {
+		if unicode.IsDigit(r) {
+			return s[:i]
+		}
+	}
+	return s
+}
+
 func getMACAddressValidator() schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (ws []string, es []error) {
 		v, ok := i.(string)
@@ -369,6 +379,22 @@ func getVMIDValidator() schema.SchemaValidateFunc {
 
 		return
 	}
+}
+
+func getOrderedDiskDeviceList(diskDeviceMap map[string]map[string]proxmox.CustomStorageDevice, diskInterface string) proxmox.CustomStorageDevices {
+	diskDevices := diskDeviceMap[diskInterface]
+
+	if diskDevices == nil {
+		return nil
+	}
+
+	orderedDiskList := make(proxmox.CustomStorageDevices, len(diskDevices))
+
+	for _, value := range diskDevices {
+		orderedDiskList = append(orderedDiskList, value)
+	}
+
+	return orderedDiskList
 }
 
 func getDiskInfo(data *proxmox.VirtualEnvironmentVMGetResponseData) map[string]*proxmox.CustomStorageDevice {
