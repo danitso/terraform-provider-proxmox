@@ -7,6 +7,7 @@ package proxmoxtf
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -2436,30 +2437,34 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 	}
 
 	// Compare the disks to those stored in the state.
-	currentDisk := d.Get(mkResourceVirtualEnvironmentVMDisk).([]interface{})
+	currentDisks := d.Get(mkResourceVirtualEnvironmentVMDisk).([]interface{})
 
 	diskList := []interface{}{}
-	diskObjects := []*proxmox.CustomStorageDevice{
-		vmConfig.SCSIDevice0,
-		vmConfig.SCSIDevice1,
-		vmConfig.SCSIDevice2,
-		vmConfig.SCSIDevice3,
-		vmConfig.SCSIDevice4,
-		vmConfig.SCSIDevice5,
-		vmConfig.SCSIDevice6,
-		vmConfig.SCSIDevice7,
-		vmConfig.SCSIDevice8,
-		vmConfig.SCSIDevice9,
-		vmConfig.SCSIDevice10,
-		vmConfig.SCSIDevice11,
-		vmConfig.SCSIDevice12,
-		vmConfig.SCSIDevice13,
+	diskObjects := getDiskInfo(vmConfig)
+
+	currentDiskMap := make(map[string]*proxmox.CustomStorageDevice)
+
+	for _, dd := range currentDisks {
+		var disk proxmox.CustomStorageDevice
+		currentDiskEntry := dd.(map[string]interface{})
+
+		id := currentDiskEntry[mkResourceVirtualEnvironmentVMDiskDatastoreID].(string)
+		diskInterface := currentDiskEntry[mkResourcevirtualEnvironmentVMDiskInterface].(string)
+		format := currentDiskEntry[mkResourceVirtualEnvironmentVMDiskFileFormat].(string)
+		fileId := currentDiskEntry[mkResourceVirtualEnvironmentVMDiskFileID].(string)
+
+		disk.Interface = &diskInterface
+		disk.ID = &id
+		disk.Format = &format
+		disk.FileId = &fileId
+
+		currentDiskMap[diskInterface] = &disk
 	}
 
 	for di, dd := range diskObjects {
 		disk := map[string]interface{}{}
 
-		if dd == nil {
+		if dd == nil || strings.HasPrefix(di, "ide") {
 			continue
 		}
 
@@ -2467,11 +2472,13 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 
 		disk[mkResourceVirtualEnvironmentVMDiskDatastoreID] = fileIDParts[0]
 
-		if len(currentDisk) > di {
-			currentDiskEntry := currentDisk[di].(map[string]interface{})
+		if val, ok := currentDiskMap[di]; ok {
+			if *val.FileId != "" {
+				disk[mkResourceVirtualEnvironmentVMDiskFileID] = val.FileId
+			}
 
-			disk[mkResourceVirtualEnvironmentVMDiskFileFormat] = currentDiskEntry[mkResourceVirtualEnvironmentVMDiskFileFormat]
-			disk[mkResourceVirtualEnvironmentVMDiskFileID] = currentDiskEntry[mkResourceVirtualEnvironmentVMDiskFileID]
+			disk[mkResourceVirtualEnvironmentVMDiskFileFormat] = val.Format
+			disk[mkResourcevirtualEnvironmentVMDiskInterface] = val.Interface
 		}
 
 		diskSize := 0
@@ -2546,11 +2553,12 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 		diskList = append(diskList, disk)
 	}
 
+	log.Printf("[DEBUG] NUMBER CURRENT DISKS %d NUMBER READ DISKS %d", len(currentDisks), len(diskList))
 	if len(clone) > 0 {
-		if len(currentDisk) > 0 {
+		if len(currentDisks) > 0 || len(diskList) > 0 {
 			d.Set(mkResourceVirtualEnvironmentVMDisk, diskList)
 		}
-	} else if len(currentDisk) > 0 || len(diskList) > 0 {
+	} else if len(currentDisks) > 0 || len(diskList) > 0 {
 		d.Set(mkResourceVirtualEnvironmentVMDisk, diskList)
 	}
 
