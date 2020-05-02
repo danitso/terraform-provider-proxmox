@@ -27,9 +27,9 @@ func (c *VirtualEnvironmentClient) ListNodeNetworkDevices(nodeName string) ([]*V
 	return resBody.Data, nil
 }
 
-func (c *VirtualEnvironmentClient) GetNetworkInterface(nodeName string,iface string) (*VirtualEnvironmentNodeNetworkDeviceResponseData, error) {
+func (c *VirtualEnvironmentClient) GetNetworkInterface(nodeName string, iface string) (*VirtualEnvironmentNodeNetworkDeviceResponseData, error) {
 	resBody := &VirtualEnvironmentNodeNetworkGetResponseBody{}
-	err := c.DoRequest(hmGET, fmt.Sprintf("nodes/%s/network/%s", url.PathEscape(nodeName),iface), nil, resBody)
+	err := c.DoRequest(hmGET, fmt.Sprintf("nodes/%s/network/%s", url.PathEscape(nodeName), iface), nil, resBody)
 
 	if err != nil {
 		return nil, err
@@ -42,6 +42,14 @@ func (c *VirtualEnvironmentClient) GetNetworkInterface(nodeName string,iface str
 	return resBody.Data, nil
 }
 
-func (c *VirtualEnvironmentClient) CreateNetworkInterface(d *VirtualEnvironmentNetworkInterfaceCreateRequestBody) error {
-	return c.DoRequest(hmPOST, fmt.Sprintf("nodes/%s/network",d.Node), d, nil)
+func (c *VirtualEnvironmentClient) CreateNetworkInterface(nodeName string, d *VirtualEnvironmentNetworkInterfaceCreateRequestBody) error {
+	return c.DoRequest(hmPOST, fmt.Sprintf("nodes/%s/network", nodeName), d, nil)
+}
+
+func (c *VirtualEnvironmentClient) UpdateNetworkInterface(nodeName string, iface string, d *VirtualEnvironmentNetworkInterfaceCreateRequestBody) error {
+	return c.DoRequest(hmPUT, fmt.Sprintf("nodes/%s/network/%s", nodeName, iface), d, nil)
+}
+
+func (c *VirtualEnvironmentClient) DeleteNetworkInterface(nodeName string, iface string) error {
+	return c.DoRequest(hmDELETE, fmt.Sprintf("nodes/%s/network/%s", nodeName, iface), nil, nil)
 }

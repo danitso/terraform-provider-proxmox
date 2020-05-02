@@ -46,10 +46,11 @@ type VirtualEnvironmentNodeNetworkDeviceResponseData struct {
 }
 
 type VirtualEnvironmentNetworkInterfaceCreateRequestBody struct {
-	Node      string      `json:"node"`
-	Iface     string      `json:"iface"`
-	Type      NetworkType `json:"type"`
-	Address   *string     `json:"address,omitempty"`
-	Address6  *string     `json:"address6,omitempty"`
-	Autostart *bool       `json:"autostart,omitempty"`
+	Iface     string  `json:"iface,omitempty" url:"iface,omitempty"`
+	Type      string  `json:"type" url:"type"`
+	Address   *string `json:"address,omitempty" url:"address,omitempty"`
+	Address6  *string `json:"address6,omitempty" url:"address6,omitempty"`
+	Autostart *bool   `json:"autostart,omitempty" url:"autostart,omitempty"`
+	NetMask   *string `json:"netmask,omitempty" url:"netmask,omitempty"`
+	Cidr      *string `json:"cidr,omitempty" url:"cidr,omitempty"`
 }

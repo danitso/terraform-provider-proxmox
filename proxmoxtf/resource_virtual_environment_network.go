@@ -6,7 +6,9 @@ package proxmoxtf
 
 import (
 	"fmt"
+	"github.com/danitso/terraform-provider-proxmox/proxmox"
 	"github.com/hashicorp/terraform/helper/schema"
+	"strings"
 )
 
 const (
@@ -35,7 +37,7 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 			mkResourceVirtualEnvironmentNetworkNodeName: {
 				Type:        schema.TypeString,
 				Description: "The network active status",
-				Required:    true,
+				Optional:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkType: {
 				Type:        schema.TypeString,
@@ -45,7 +47,8 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 			mkResourceVirtualEnvironmentNetworkIface: {
 				Type:        schema.TypeString,
 				Description: "The network interface",
-				Required:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkActive: {
 				Type:        schema.TypeBool,
@@ -119,7 +122,7 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 				Computed:    true,
 			},
 		},
-		Read: resourceVirtualEnvironmentNetworkRead,
+		Read:   resourceVirtualEnvironmentNetworkRead,
 		Create: resourceVirtualEnvironmentNetworkCreate,
 		Update: resourceVirtualEnvironmentNetworkUpdate,
 		Delete: resourceVirtualEnvironmentNetworkDelete,
@@ -127,15 +130,71 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 }
 
 func resourceVirtualEnvironmentNetworkDelete(d *schema.ResourceData, m interface{}) error {
+	config := m.(providerConfiguration)
+	veClient, err := config.GetVEClient()
 
+	if err != nil {
+		return err
+	}
+	nodeName := d.Get(mkResourceVirtualEnvironmentNetworkNodeName).(string)
+	iface := d.Get(mkResourceVirtualEnvironmentNetworkIface).(string)
+
+	d.SetId(fmt.Sprintf("%s_network_%s", nodeName, strings.ReplaceAll(iface, ".", "_")))
+
+	err = veClient.DeleteNetworkInterface(nodeName, iface)
+
+	if err != nil {
+		return err
+	}
+
+	d.SetId("")
+
+	return nil
 }
 
 func resourceVirtualEnvironmentNetworkUpdate(d *schema.ResourceData, m interface{}) error {
+	config := m.(providerConfiguration)
+	veClient, err := config.GetVEClient()
 
+	if err != nil {
+		return err
+	}
+
+	nodeName := d.Get(mkResourceVirtualEnvironmentNetworkNodeName).(string)
+	iface := d.Get(mkResourceVirtualEnvironmentNetworkIface).(string)
+
+	d.SetId(fmt.Sprintf("%s_network_%s", nodeName, strings.ReplaceAll(iface, ".", "_")))
+
+	body := getBody(d, true)
+	err = veClient.UpdateNetworkInterface(nodeName, iface, body)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func resourceVirtualEnvironmentNetworkCreate(d *schema.ResourceData, m interface{}) error {
+	config := m.(providerConfiguration)
+	veClient, err := config.GetVEClient()
 
+	if err != nil {
+		return err
+	}
+	nodeName := d.Get(mkResourceVirtualEnvironmentNetworkNodeName).(string)
+	iface := d.Get(mkResourceVirtualEnvironmentNetworkIface).(string)
+
+	d.SetId(fmt.Sprintf("%s_network_%s", nodeName, strings.ReplaceAll(iface, ".", "_")))
+
+	body := getBody(d, false)
+	err = veClient.CreateNetworkInterface(nodeName, body)
+
+	if err != nil {
+		return err
+	}
+
+	return resourceVirtualEnvironmentNetworkRead(d, m)
 }
 
 func resourceVirtualEnvironmentNetworkRead(d *schema.ResourceData, m interface{}) error {
@@ -154,7 +213,8 @@ func resourceVirtualEnvironmentNetworkRead(d *schema.ResourceData, m interface{}
 	if err != nil {
 		return err
 	}
-	d.SetId(fmt.Sprintf("%s_network_%s", nodeName, network.Iface))
+
+	d.SetId(fmt.Sprintf("%s_network_%s", nodeName, strings.ReplaceAll(iface, ".", "_")))
 
 	d.Set(mkResourceVirtualEnvironmentNetworkType, network.Type)
 	d.Set(mkResourceVirtualEnvironmentContainerNetworkInterface, network.Iface)
@@ -175,4 +235,29 @@ func resourceVirtualEnvironmentNetworkRead(d *schema.ResourceData, m interface{}
 	d.Set(mkResourceVirtualEnvironmentNetworkGateway, network.Gateway)
 
 	return nil
+}
+
+func getBody(d *schema.ResourceData, isUpdate bool) *proxmox.VirtualEnvironmentNetworkInterfaceCreateRequestBody {
+	body := &proxmox.VirtualEnvironmentNetworkInterfaceCreateRequestBody{
+		Type: d.Get(mkResourceVirtualEnvironmentNetworkType).(string),
+	}
+	if isUpdate == false {
+		body.Iface = d.Get(mkResourceVirtualEnvironmentNetworkIface).(string)
+	}
+
+	val := d.Get(mkResourceVirtualEnvironmentNetworkAddress).(string)
+	if val != "" {
+		body.Address = &val
+	}
+
+	val = d.Get(mkResourceVirtualEnvironmentNetworkNetmask).(string)
+	if val != "" {
+		body.NetMask = &val
+	}
+
+	val = d.Get(mkResourceVirtualEnvironmentNetworkCIDR).(string)
+	if val != "" {
+		body.Cidr = &val
+	}
+	return body
 }
