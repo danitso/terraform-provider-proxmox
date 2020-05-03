@@ -27,6 +27,7 @@ func (c *VirtualEnvironmentClient) ListNodeNetworkDevices(nodeName string) ([]*V
 	return resBody.Data, nil
 }
 
+// GetNetworkInterface retrieves the specified network device for a specific nodes.
 func (c *VirtualEnvironmentClient) GetNetworkInterface(nodeName string, iface string) (*VirtualEnvironmentNodeNetworkDeviceResponseData, error) {
 	resBody := &VirtualEnvironmentNodeNetworkGetResponseBody{}
 	err := c.DoRequest(hmGET, fmt.Sprintf("nodes/%s/network/%s", url.PathEscape(nodeName), iface), nil, resBody)
@@ -42,14 +43,17 @@ func (c *VirtualEnvironmentClient) GetNetworkInterface(nodeName string, iface st
 	return resBody.Data, nil
 }
 
+// CreateNetworkInterface create the specified network interface for a specific nodes.
 func (c *VirtualEnvironmentClient) CreateNetworkInterface(nodeName string, d *VirtualEnvironmentNetworkInterfaceCreateRequestBody) error {
 	return c.DoRequest(hmPOST, fmt.Sprintf("nodes/%s/network", nodeName), d, nil)
 }
 
+// UpdateNetworkInterface update the specified network interface for a specific nodes.
 func (c *VirtualEnvironmentClient) UpdateNetworkInterface(nodeName string, iface string, d *VirtualEnvironmentNetworkInterfaceCreateRequestBody) error {
 	return c.DoRequest(hmPUT, fmt.Sprintf("nodes/%s/network/%s", nodeName, iface), d, nil)
 }
 
+// DeleteNetworkInterface delete the specified network interface for a specific nodes.
 func (c *VirtualEnvironmentClient) DeleteNetworkInterface(nodeName string, iface string) error {
 	return c.DoRequest(hmDELETE, fmt.Sprintf("nodes/%s/network/%s", nodeName, iface), nil, nil)
 }

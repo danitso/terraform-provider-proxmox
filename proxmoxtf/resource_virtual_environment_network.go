@@ -12,28 +12,45 @@ import (
 )
 
 const (
-	mkResourceVirtualEnvironmentNetworkNodeName    = "node_name"
-	mkResourceVirtualEnvironmentNetworkActive      = "active"
-	mkResourceVirtualEnvironmentNetworkAddress     = "address"
-	mkResourceVirtualEnvironmentNetworkAutostart   = "autostart"
-	mkResourceVirtualEnvironmentNetworkBridgeFD    = "bridge_fd"
-	mkResourceVirtualEnvironmentNetworkBridgePorts = "bridge_ports"
-	mkResourceVirtualEnvironmentNetworkBridgeSTP   = "bridge_stp"
-	mkResourceVirtualEnvironmentNetworkCIDR        = "cidr"
-	mkResourceVirtualEnvironmentNetworkExists      = "exists"
-	mkResourceVirtualEnvironmentNetworkFamilies    = "families"
-	mkResourceVirtualEnvironmentNetworkGateway     = "gateway"
-	mkResourceVirtualEnvironmentNetworkIface       = "iface"
-	mkResourceVirtualEnvironmentNetworkMethodIPv4  = "method_ipv4"
-	mkResourceVirtualEnvironmentNetworkMethodIPv6  = "method_ipv6"
-	mkResourceVirtualEnvironmentNetworkNetmask     = "netmask"
-	mkResourceVirtualEnvironmentNetworkPriority    = "priority"
-	mkResourceVirtualEnvironmentNetworkType        = "type"
+	mkResourceVirtualEnvironmentNetworkIface              = "iface"
+	mkResourceVirtualEnvironmentNetworkNodeName           = "node_name"
+	mkResourceVirtualEnvironmentNetworkType               = "type"
+	mkResourceVirtualEnvironmentNetworkAddress            = "address"
+	mkResourceVirtualEnvironmentNetworkAddress6           = "address6"
+	mkResourceVirtualEnvironmentNetworkAutostart          = "autostart"
+	mkResourceVirtualEnvironmentNetworkBondPrimary        = "bond-primary"
+	mkResourceVirtualEnvironmentNetworkBondMode           = "bond_mode"
+	mkResourceVirtualEnvironmentNetworkBondXmitHashPolicy = "bond_xmit_hash_policy"
+	mkResourceVirtualEnvironmentNetworkBridgePorts        = "bridge_ports"
+	mkResourceVirtualEnvironmentNetworkBridgeVlanAware    = "bridge_vlan_aware"
+	mkResourceVirtualEnvironmentNetworkCIDR               = "cidr"
+	mkResourceVirtualEnvironmentNetworkCIDR6              = "cidr6"
+	mkResourceVirtualEnvironmentNetworkComments           = "comments"
+	mkResourceVirtualEnvironmentNetworkComments6          = "comments6"
+	mkResourceVirtualEnvironmentNetworkGateway            = "gateway"
+	mkResourceVirtualEnvironmentNetworkGateway6           = "gateway6"
+	mkResourceVirtualEnvironmentNetworkMtu                = "mtu"
+	mkResourceVirtualEnvironmentNetworkNetmask            = "netmask"
+	mkResourceVirtualEnvironmentNetworkNetmask6           = "netmask6"
+	mkResourceVirtualEnvironmentNetworkOvsBond            = "ovs_bonds"
+	mkResourceVirtualEnvironmentNetworkOvsBridge          = "ovs_bridge"
+	mkResourceVirtualEnvironmentNetworkOvsOptions         = "ovs_options"
+	mkResourceVirtualEnvironmentNetworkOvsPorts           = "ovs_ports"
+	mkResourceVirtualEnvironmentNetworkOvsTag             = "ovs_tag"
+	mkResourceVirtualEnvironmentNetworkOvsSlaves          = "slaves"
+	mkResourceVirtualEnvironmentNetworkVlanID             = "vlan-id"
+	mkResourceVirtualEnvironmentNetworkVlanRawDevice      = "vlan-raw-device"
 )
 
 func resourceVirtualEnvironmentNetwork() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			mkResourceVirtualEnvironmentNetworkIface: {
+				Type:        schema.TypeString,
+				Description: "The network interface",
+				Optional:    true,
+				ForceNew:    true,
+			},
 			mkResourceVirtualEnvironmentNetworkNodeName: {
 				Type:        schema.TypeString,
 				Description: "The network active status",
@@ -44,30 +61,14 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 				Description: "The network type",
 				Required:    true,
 			},
-			mkResourceVirtualEnvironmentNetworkIface: {
-				Type:        schema.TypeString,
-				Description: "The network interface",
-				Optional:    true,
-				ForceNew:    true,
-			},
-			mkResourceVirtualEnvironmentNetworkActive: {
-				Type:        schema.TypeBool,
-				Description: "The network active status",
-				Optional:    true,
-			},
 			mkResourceVirtualEnvironmentNetworkAddress: {
 				Type:        schema.TypeString,
 				Description: "The network IP address",
 				Optional:    true,
 			},
-			mkResourceVirtualEnvironmentNetworkCIDR: {
+			mkResourceVirtualEnvironmentNetworkAddress6: {
 				Type:        schema.TypeString,
-				Description: "The network CIDR",
-				Optional:    true,
-			},
-			mkResourceVirtualEnvironmentNetworkNetmask: {
-				Type:        schema.TypeString,
-				Description: "The network netmask",
+				Description: "The network IPv6 address",
 				Optional:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkAutostart: {
@@ -75,9 +76,19 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 				Description: "The network autostart status",
 				Optional:    true,
 			},
-			mkResourceVirtualEnvironmentNetworkBridgeFD: {
-				Type:        schema.TypeInt,
-				Description: "The network bridge forwarding delay",
+			mkResourceVirtualEnvironmentNetworkBondPrimary: {
+				Type:        schema.TypeString,
+				Description: "Specify the primary interface for the active-backup bond",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkBondMode: {
+				Type:        schema.TypeString,
+				Description: "Bonding mode",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkBondXmitHashPolicy: {
+				Type:        schema.TypeString,
+				Description: "Selects the transmit hash policy to use for slave selection in balance-xor and 802.3ad modes.",
 				Optional:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkBridgePorts: {
@@ -85,41 +96,95 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 				Description: "The network bridge ports",
 				Optional:    true,
 			},
-			mkResourceVirtualEnvironmentNetworkBridgeSTP: {
-				Type:        schema.TypeString,
-				Description: "The network bridge spanning tree protocol status",
-				Optional:    true,
-			},
-			mkResourceVirtualEnvironmentNetworkPriority: {
-				Type:        schema.TypeInt,
-				Description: "The network priority",
-				Optional:    true,
-			},
-			mkResourceVirtualEnvironmentNetworkMethodIPv4: {
-				Type:        schema.TypeString,
-				Description: "The network method for ipv4",
-				Optional:    true,
-			},
-			mkResourceVirtualEnvironmentNetworkMethodIPv6: {
-				Type:        schema.TypeString,
-				Description: "The network method for ipv6",
-				Optional:    true,
-			},
-			mkResourceVirtualEnvironmentNetworkExists: {
+			mkResourceVirtualEnvironmentNetworkBridgeVlanAware: {
 				Type:        schema.TypeBool,
-				Description: "The network existed prior the request",
+				Description: "Enable bridge vlan support",
 				Optional:    true,
 			},
-			mkResourceVirtualEnvironmentNetworkFamilies: {
-				Type:        schema.TypeList,
-				Description: "The network families",
+			mkResourceVirtualEnvironmentNetworkCIDR: {
+				Type:        schema.TypeString,
+				Description: "The network IPv4 CIDR",
 				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			mkResourceVirtualEnvironmentNetworkCIDR6: {
+				Type:        schema.TypeString,
+				Description: "The network IPv6 CIDR",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkComments: {
+				Type:        schema.TypeString,
+				Description: "Comments",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkComments6: {
+				Type:        schema.TypeString,
+				Description: "Comments",
+				Optional:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkGateway: {
 				Type:        schema.TypeString,
-				Description: "The network gateway",
+				Description: "Default gateway address",
 				Computed:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkGateway6: {
+				Type:        schema.TypeString,
+				Description: "Default ipv6 gateway address",
+				Computed:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkMtu: {
+				Type:        schema.TypeInt,
+				Description: "MTU",
+				Computed:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkNetmask: {
+				Type:        schema.TypeString,
+				Description: "The network netmask",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkNetmask6: {
+				Type:        schema.TypeString,
+				Description: "The network ipv6 netmask",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkOvsBond: {
+				Type:        schema.TypeString,
+				Description: "Specify the interfaces used by the bonding device",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkOvsBridge: {
+				Type:        schema.TypeString,
+				Description: "The OVS bridge associated with a OVS port. This is required when you create an OVS port",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkOvsOptions: {
+				Type:        schema.TypeString,
+				Description: "OVS interface options",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkOvsPorts: {
+				Type:        schema.TypeString,
+				Description: "Specify the interfaces you want to add to your bridge",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkOvsTag: {
+				Type:        schema.TypeInt,
+				Description: "Specify the Vlan tag (used by OVSPort, OVSIntPort, OVSBond)",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkOvsSlaves: {
+				Type:        schema.TypeString,
+				Description: "Specify the interfaces used byt the bonding device",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkVlanID: {
+				Type:        schema.TypeInt,
+				Description: "vlan-id for a custom named vlan interface (ifupdown2 only)",
+				Optional:    true,
+			},
+			mkResourceVirtualEnvironmentNetworkVlanRawDevice: {
+				Type:        schema.TypeString,
+				Description: "Specify the raw interface for the vlan interface",
+				Optional:    true,
 			},
 		},
 		Read:   resourceVirtualEnvironmentNetworkRead,
@@ -218,20 +283,11 @@ func resourceVirtualEnvironmentNetworkRead(d *schema.ResourceData, m interface{}
 
 	d.Set(mkResourceVirtualEnvironmentNetworkType, network.Type)
 	d.Set(mkResourceVirtualEnvironmentContainerNetworkInterface, network.Iface)
-	d.Set(mkResourceVirtualEnvironmentNetworkActive, network.Active)
 	d.Set(mkResourceVirtualEnvironmentNetworkAddress, network.Address)
 	d.Set(mkResourceVirtualEnvironmentNetworkCIDR, network.CIDR)
 	d.Set(mkResourceVirtualEnvironmentNetworkNetmask, network.Netmask)
 	d.Set(mkResourceVirtualEnvironmentNetworkAutostart, network.Autostart)
-	d.Set(mkResourceVirtualEnvironmentNetworkBridgeFD, network.BridgeFD)
 	d.Set(mkResourceVirtualEnvironmentNetworkBridgePorts, network.BridgePorts)
-	d.Set(mkResourceVirtualEnvironmentNetworkBridgeSTP, network.BridgeSTP)
-	d.Set(mkResourceVirtualEnvironmentNetworkPriority, network.Priority)
-	d.Set(mkResourceVirtualEnvironmentNetworkMethodIPv4, network.MethodIPv4)
-	d.Set(mkResourceVirtualEnvironmentNetworkMethodIPv6, network.MethodIPv6)
-
-	d.Set(mkResourceVirtualEnvironmentNetworkExists, network.Exists)
-	d.Set(mkResourceVirtualEnvironmentNetworkFamilies, network.Families)
 	d.Set(mkResourceVirtualEnvironmentNetworkGateway, network.Gateway)
 
 	return nil
@@ -245,19 +301,72 @@ func getBody(d *schema.ResourceData, isUpdate bool) *proxmox.VirtualEnvironmentN
 		body.Iface = d.Get(mkResourceVirtualEnvironmentNetworkIface).(string)
 	}
 
-	val := d.Get(mkResourceVirtualEnvironmentNetworkAddress).(string)
-	if val != "" {
-		body.Address = &val
-	}
+	assignIfStringExists(d, &body.Address, mkResourceVirtualEnvironmentNetworkAddress)
+	assignIfStringExists(d, &body.Address6, mkResourceVirtualEnvironmentNetworkAddress6)
 
-	val = d.Get(mkResourceVirtualEnvironmentNetworkNetmask).(string)
-	if val != "" {
-		body.NetMask = &val
-	}
+	assignIfBoolExists(d, &body.Autostart, mkResourceVirtualEnvironmentNetworkAutostart)
 
-	val = d.Get(mkResourceVirtualEnvironmentNetworkCIDR).(string)
-	if val != "" {
-		body.Cidr = &val
-	}
+	assignIfStringExists(d, &body.BondPrimary, mkResourceVirtualEnvironmentNetworkBondPrimary)
+	assignIfStringExists(d, &body.BondMode, mkResourceVirtualEnvironmentNetworkBondMode)
+	assignIfStringExists(d, &body.BondXmitHashPolicy, mkResourceVirtualEnvironmentNetworkBondXmitHashPolicy)
+	assignIfStringExists(d, &body.BridgePorts, mkResourceVirtualEnvironmentNetworkBridgePorts)
+
+	assignIfBoolExists(d, &body.BridgeVlanAware, mkResourceVirtualEnvironmentNetworkBridgeVlanAware)
+
+	assignIfStringExists(d, &body.Cidr, mkResourceVirtualEnvironmentNetworkCIDR)
+	assignIfStringExists(d, &body.Cidr6, mkResourceVirtualEnvironmentNetworkCIDR6)
+	assignIfStringExists(d, &body.Comments, mkResourceVirtualEnvironmentNetworkComments)
+	assignIfStringExists(d, &body.Comments6, mkResourceVirtualEnvironmentNetworkComments6)
+	assignIfStringExists(d, &body.Gateway, mkResourceVirtualEnvironmentNetworkGateway)
+	assignIfStringExists(d, &body.Gateway6, mkResourceVirtualEnvironmentNetworkGateway6)
+
+	assignIfIntExists(d, &body.Mtu, mkResourceVirtualEnvironmentNetworkMtu)
+
+	assignIfStringExists(d, &body.NetMask, mkResourceVirtualEnvironmentNetworkNetmask)
+	assignIfStringExists(d, &body.NetMask6, mkResourceVirtualEnvironmentNetworkNetmask6)
+
+	// Ovs Params
+	assignIfStringExists(d, &body.OvsBond, mkResourceVirtualEnvironmentNetworkOvsBond)
+	assignIfStringExists(d, &body.OvsBridge, mkResourceVirtualEnvironmentNetworkOvsBridge)
+	assignIfStringExists(d, &body.OvsOptions, mkResourceVirtualEnvironmentNetworkOvsOptions)
+	assignIfStringExists(d, &body.OvsPorts, mkResourceVirtualEnvironmentNetworkOvsPorts)
+
+	assignIfIntExists(d, &body.OvsTags, mkResourceVirtualEnvironmentNetworkOvsTag)
+	assignIfStringExists(d, &body.OvsSlaves, mkResourceVirtualEnvironmentNetworkOvsPorts)
+
+	// Vlan
+	assignIfIntExists(d, &body.VlanId, mkResourceVirtualEnvironmentNetworkVlanID)
+	assignIfStringExists(d, &body.VlanRawDevide, mkResourceVirtualEnvironmentNetworkVlanRawDevice)
+
 	return body
+}
+
+func assignIfStringExists(d *schema.ResourceData, p **string, key string) {
+	stringVal := d.Get(key).(string)
+
+	if stringVal == "" {
+		return
+	}
+
+	*p = &stringVal
+}
+
+func assignIfBoolExists(d *schema.ResourceData, p **bool, key string) {
+	stringVal := d.Get(key).(bool)
+
+	if stringVal == false {
+		return
+	}
+
+	*p = &stringVal
+}
+
+func assignIfIntExists(d *schema.ResourceData, p **int, key string) {
+	stringVal := d.Get(key).(int)
+
+	if stringVal == 0 {
+		return
+	}
+
+	*p = &stringVal
 }
