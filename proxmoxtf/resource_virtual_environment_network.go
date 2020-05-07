@@ -18,7 +18,7 @@ const (
 	mkResourceVirtualEnvironmentNetworkAddress            = "address"
 	mkResourceVirtualEnvironmentNetworkAddress6           = "address6"
 	mkResourceVirtualEnvironmentNetworkAutostart          = "autostart"
-	mkResourceVirtualEnvironmentNetworkBondPrimary        = "bond-primary"
+	mkResourceVirtualEnvironmentNetworkBondPrimary        = "bond_primary"
 	mkResourceVirtualEnvironmentNetworkBondMode           = "bond_mode"
 	mkResourceVirtualEnvironmentNetworkBondXmitHashPolicy = "bond_xmit_hash_policy"
 	mkResourceVirtualEnvironmentNetworkBridgePorts        = "bridge_ports"
@@ -38,8 +38,8 @@ const (
 	mkResourceVirtualEnvironmentNetworkOvsPorts           = "ovs_ports"
 	mkResourceVirtualEnvironmentNetworkOvsTag             = "ovs_tag"
 	mkResourceVirtualEnvironmentNetworkOvsSlaves          = "slaves"
-	mkResourceVirtualEnvironmentNetworkVlanID             = "vlan-id"
-	mkResourceVirtualEnvironmentNetworkVlanRawDevice      = "vlan-raw-device"
+	mkResourceVirtualEnvironmentNetworkVlanID             = "vlan_id"
+	mkResourceVirtualEnvironmentNetworkVlanRawDevice      = "vlan_raw_device"
 )
 
 func resourceVirtualEnvironmentNetwork() *schema.Resource {
@@ -53,8 +53,9 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 			},
 			mkResourceVirtualEnvironmentNetworkNodeName: {
 				Type:        schema.TypeString,
-				Description: "The network active status",
-				Optional:    true,
+				Description: "The network node name",
+				Required:    true,
+				ForceNew:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkType: {
 				Type:        schema.TypeString,
@@ -124,17 +125,17 @@ func resourceVirtualEnvironmentNetwork() *schema.Resource {
 			mkResourceVirtualEnvironmentNetworkGateway: {
 				Type:        schema.TypeString,
 				Description: "Default gateway address",
-				Computed:    true,
+				Optional:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkGateway6: {
 				Type:        schema.TypeString,
 				Description: "Default ipv6 gateway address",
-				Computed:    true,
+				Optional:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkMtu: {
 				Type:        schema.TypeInt,
 				Description: "MTU",
-				Computed:    true,
+				Optional:    true,
 			},
 			mkResourceVirtualEnvironmentNetworkNetmask: {
 				Type:        schema.TypeString,
@@ -336,7 +337,7 @@ func getBody(d *schema.ResourceData, isUpdate bool) *proxmox.VirtualEnvironmentN
 
 	// Vlan
 	assignIfIntExists(d, &body.VlanId, mkResourceVirtualEnvironmentNetworkVlanID)
-	assignIfStringExists(d, &body.VlanRawDevide, mkResourceVirtualEnvironmentNetworkVlanRawDevice)
+	assignIfStringExists(d, &body.VlanRawDevice, mkResourceVirtualEnvironmentNetworkVlanRawDevice)
 
 	return body
 }
