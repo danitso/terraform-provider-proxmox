@@ -947,6 +947,17 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 		Read:   resourceVirtualEnvironmentVMRead,
 		Update: resourceVirtualEnvironmentVMUpdate,
 		Delete: resourceVirtualEnvironmentVMDelete,
+		Importer: &schema.ResourceImporter{
+			State: func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+				parts := strings.Split(d.Id(), "/")
+				if len(parts) != 3 {
+					return nil, fmt.Errorf("Malformed import ID: use <host>/quemu/<id>")
+				}
+				d.SetId(parts[2])
+				d.Set(mkResourceVirtualEnvironmentVMNodeName, parts[0])
+				return []*schema.ResourceData{d}, nil
+			},
+		},
 	}
 }
 
