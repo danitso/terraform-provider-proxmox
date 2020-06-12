@@ -143,6 +143,7 @@ func resourceVirtualEnvironmentClusterOptions() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "Defines how many workers (per node) are maximal started  on actions like 'stopall VMs' or task from the ha-manager.",
 				Optional:    true,
+				ValidateFunc: validation.IntAtLeast(1),
 			},
 		},
 		Create: resourceVirtualEnvironmentClusterOptionsCreate,

@@ -2,8 +2,11 @@
 
 FEATURES:
 
-* **New Data Source:** `proxmox_virtual_environment_time`
-* **New Resource:** `proxmox_virtual_environment_time`
+* **New Data Sources:**
+    - `proxmox_virtual_environment_time`
+* **New Resources:**
+    - `proxmox_virtual_environment_time`
+    - `proxmox_virtual_environment_cluster_options`
 
 ENHANCEMENTS:
 
