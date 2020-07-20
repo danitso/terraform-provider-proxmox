@@ -1368,10 +1368,12 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 			Size: fmt.Sprintf("%dG", diskSize),
 		}
 
-		err = veClient.MoveVMDisk(nodeName, vmID, diskMoveBody)
+		if dataStoreID != "" {
+			err = veClient.MoveVMDisk(nodeName, vmID, diskMoveBody)
 
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
 		}
 
 		err = veClient.ResizeVMDisk(nodeName, vmID, diskResizeBody)
