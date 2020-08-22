@@ -1532,16 +1532,17 @@ func resourceVirtualEnvironmentVMCreateCustomDisks(d *schema.ResourceData, m int
 
 	commands := []string{}
 
-	// Determine the ID of the next disk.
+	// Count disks in each data store to determine IDs for imported disks
 	disk := d.Get(mkResourceVirtualEnvironmentVMDisk).([]interface{})
-	diskCount := 0
+	datastoreDiskCounts := make(map[string]int)
 
 	for _, d := range disk {
 		block := d.(map[string]interface{})
 		fileID, _ := block[mkResourceVirtualEnvironmentVMDiskFileID].(string)
 
 		if fileID == "" {
-			diskCount++
+			datastoreID, _ := block[mkResourceVirtualEnvironmentVMDiskDatastoreID].(string)
+			datastoreDiskCounts[datastoreID]++
 		}
 	}
 
@@ -1552,7 +1553,6 @@ func resourceVirtualEnvironmentVMCreateCustomDisks(d *schema.ResourceData, m int
 	diskSpeedResource := diskSchemaResource.Schema[mkResourceVirtualEnvironmentVMDiskSpeed]
 
 	// Generate the commands required to import the specified disks.
-	importedDiskCount := 0
 
 	for i, d := range disk {
 		block := d.(map[string]interface{})
@@ -1611,15 +1611,17 @@ func resourceVirtualEnvironmentVMCreateCustomDisks(d *schema.ResourceData, m int
 			filePath = fmt.Sprintf("/%s", fileIDParts[1])
 		}
 
-		filePathTmp := fmt.Sprintf("/tmp/vm-%d-disk-%d.%s", vmID, diskCount+importedDiskCount, fileFormat)
+		datastoreDiskIndex := datastoreDiskCounts[datastoreID]
+
+		filePathTmp := fmt.Sprintf("/tmp/vm-%d-disk-%d.%s", vmID, datastoreDiskIndex, fileFormat)
 
 		commands = append(
 			commands,
 			`set -e`,
 			fmt.Sprintf(`datastore_id_image="%s"`, fileIDParts[0]),
 			fmt.Sprintf(`datastore_id_target="%s"`, datastoreID),
-			fmt.Sprintf(`disk_count="%d"`, diskCount+importedDiskCount),
-			fmt.Sprintf(`disk_index="%d"`, i),
+			fmt.Sprintf(`datastore_disk_index="%d"`, datastoreDiskIndex),
+			fmt.Sprintf(`vm_disk_index="%d"`, i),
 			fmt.Sprintf(`disk_options="%s"`, diskOptions),
 			fmt.Sprintf(`disk_size="%d"`, size),
 			fmt.Sprintf(`file_path="%s"`, filePath),
@@ -1635,12 +1637,12 @@ func resourceVirtualEnvironmentVMCreateCustomDisks(d *schema.ResourceData, m int
 			`cp "${dsp_image}${file_path}" "$file_path_tmp"`,
 			`qemu-img resize "$file_path_tmp" "${disk_size}G"`,
 			`qm importdisk "$vm_id" "$file_path_tmp" "$datastore_id_target" -format qcow2`,
-			`disk_id="${datastore_id_target}:$([[ "$dst_target" == "dir" ]] && echo "${vm_id}/" || echo "")vm-${vm_id}-disk-${disk_count}$([[ "$dst_target" == "dir" ]] && echo ".qcow2" || echo "")${disk_options}"`,
-			`qm set "$vm_id" "-scsi${disk_index}" "$disk_id"`,
+			`disk_id="${datastore_id_target}:$([[ "$dst_target" == "dir" ]] && echo "${vm_id}/" || echo "")vm-${vm_id}-disk-${datastore_disk_index}$([[ "$dst_target" == "dir" ]] && echo ".qcow2" || echo "")${disk_options}"`,
+			`qm set "$vm_id" "-scsi${vm_disk_index}" "$disk_id"`,
 			`rm -f "$file_path_tmp"`,
 		)
 
-		importedDiskCount++
+		datastoreDiskCounts[datastoreID]++
 	}
 
 	// Execute the commands on the node and wait for the result.
