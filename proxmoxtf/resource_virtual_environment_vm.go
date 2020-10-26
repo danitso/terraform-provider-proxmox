@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -1344,12 +1343,10 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 			return errors.New(fmt.Sprintf("Disk move failed, no disk named %s", diskInterface))
 		}
 
-		compareString := *currentDiskInfo.Size
-		compareSize := len(compareString)
-		compareNumber, err := strconv.Atoi(compareString[:compareSize-1])
+		compareNumber, err := parseDiskSize(currentDiskInfo.Size)
 
 		if err != nil {
-			return errors.New(fmt.Sprintf("Disk resize failed, vm disk size could not be converted to int disk size = %s", *currentDiskInfo.Size))
+			return err
 		}
 
 		if diskSize < compareNumber {
@@ -2488,33 +2485,10 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 		diskSize := 0
 
 		var err error
+		diskSize, err = parseDiskSize(dd.Size)
 
-		if dd.Size != nil {
-			if strings.HasSuffix(*dd.Size, "T") {
-				diskSize, err = strconv.Atoi(strings.TrimSuffix(*dd.Size, "T"))
-
-				if err != nil {
-					return err
-				}
-
-				diskSize = int(math.Ceil(float64(diskSize) * 1024))
-			} else if strings.HasSuffix(*dd.Size, "G") {
-				diskSize, err = strconv.Atoi(strings.TrimSuffix(*dd.Size, "G"))
-
-				if err != nil {
-					return err
-				}
-			} else if strings.HasSuffix(*dd.Size, "M") {
-				diskSize, err = strconv.Atoi(strings.TrimSuffix(*dd.Size, "M"))
-
-				if err != nil {
-					return err
-				}
-
-				diskSize = int(math.Ceil(float64(diskSize) / 1024))
-			} else {
-				return fmt.Errorf("Cannot parse storage size \"%s\"", *dd.Size)
-			}
+		if err != nil {
+			return err
 		}
 
 		disk[mkResourceVirtualEnvironmentVMDiskSize] = diskSize
