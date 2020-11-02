@@ -15,7 +15,7 @@ Use the navigation to the left to read about the available resources.
 ```
 provider "proxmox" {
   virtual_environment {
-    endpoint = "https://10.0.0.2"
+    endpoint = "https://10.0.0.2:8006"
     username = "root@pam"
     password = "the-password-set-during-installation-of-proxmox-ve"
     insecure = true
@@ -85,7 +85,7 @@ $ terraform plan
 In addition to [generic provider arguments](https://www.terraform.io/docs/configuration/providers.html) (e.g. `alias` and `version`), the following arguments are supported in the Proxmox `provider` block:
 
 * `virtual_environment` - (Optional) The Proxmox Virtual Environment configuration.
-    * `endpoint` - (Required) The endpoint for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_ENDPOINT`).
+    * `endpoint` - (Required) The endpoint for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_ENDPOINT`). Note that the `/api2/json` part will be automatically added by the provider so there is no need to specify it.
     * `insecure` - (Optional) Whether to skip the TLS verification step (can also be sourced from `PROXMOX_VE_INSECURE`). If omitted, defaults to `false`.
     * `otp` - (Optional) The one-time password for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_OTP`).
     * `password` - (Required) The password for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_PASSWORD`).

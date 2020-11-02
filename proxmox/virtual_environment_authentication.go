@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -42,6 +43,8 @@ func (c *VirtualEnvironmentClient) Authenticate(reset bool) error {
 	}
 
 	req, err := http.NewRequest(hmPOST, fmt.Sprintf("%s/%s/access/ticket", c.Endpoint, basePathJSONAPI), reqBody)
+
+	log.Printf("[DEBUG] Performing %s authentication request at %s", hmPOST, fmt.Sprintf("%s/%s/access/ticket", c.Endpoint, basePathJSONAPI))
 
 	if err != nil {
 		return errors.New("Failed to create authentication request")
