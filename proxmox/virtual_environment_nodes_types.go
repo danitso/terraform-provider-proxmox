@@ -47,31 +47,6 @@ type VirtualEnvironmentNodeListResponseData struct {
 	Uptime          *int     `json:"uptime"`
 }
 
-// VirtualEnvironmentNodeNetworkDeviceListResponseBody contains the body from a node network device list response.
-type VirtualEnvironmentNodeNetworkDeviceListResponseBody struct {
-	Data []*VirtualEnvironmentNodeNetworkDeviceListResponseData `json:"data,omitempty"`
-}
-
-// VirtualEnvironmentNodeNetworkDeviceListResponseData contains the data from a node network device list response.
-type VirtualEnvironmentNodeNetworkDeviceListResponseData struct {
-	Active      *CustomBool `json:"active,omitempty"`
-	Address     *string     `json:"address,omitempty"`
-	Autostart   *CustomBool `json:"autostart,omitempty"`
-	BridgeFD    *string     `json:"bridge_fd,omitempty"`
-	BridgePorts *string     `json:"bridge_ports,omitempty"`
-	BridgeSTP   *string     `json:"bridge_stp,omitempty"`
-	CIDR        *string     `json:"cidr,omitempty"`
-	Exists      *CustomBool `json:"exists,omitempty"`
-	Families    *[]string   `json:"families,omitempty"`
-	Gateway     *string     `json:"gateway,omitempty"`
-	Iface       string      `json:"iface"`
-	MethodIPv4  *string     `json:"method,omitempty"`
-	MethodIPv6  *string     `json:"method6,omitempty"`
-	Netmask     *string     `json:"netmask,omitempty"`
-	Priority    int         `json:"priority"`
-	Type        string      `json:"type"`
-}
-
 // VirtualEnvironmentNodeUpdateTimeRequestBody contains the body for a node time update request.
 type VirtualEnvironmentNodeUpdateTimeRequestBody struct {
 	TimeZone string `json:"timezone" url:"timezone"`

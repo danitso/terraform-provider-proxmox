@@ -6,7 +6,6 @@ package proxmoxtf
 
 import (
 	"fmt"
-
 	"github.com/danitso/terraform-provider-proxmox/proxmox"
 	"github.com/hashicorp/terraform/helper/schema"
 )

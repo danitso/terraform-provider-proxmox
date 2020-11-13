@@ -88,25 +88,7 @@ func (c *VirtualEnvironmentClient) GetNodeTime(nodeName string) (*VirtualEnviron
 	return resBody.Data, nil
 }
 
-// ListNodeNetworkDevices retrieves a list of network devices for a specific nodes.
-func (c *VirtualEnvironmentClient) ListNodeNetworkDevices(nodeName string) ([]*VirtualEnvironmentNodeNetworkDeviceListResponseData, error) {
-	resBody := &VirtualEnvironmentNodeNetworkDeviceListResponseBody{}
-	err := c.DoRequest(hmGET, fmt.Sprintf("nodes/%s/network", url.PathEscape(nodeName)), nil, resBody)
 
-	if err != nil {
-		return nil, err
-	}
-
-	if resBody.Data == nil {
-		return nil, errors.New("The server did not include a data object in the response")
-	}
-
-	sort.Slice(resBody.Data, func(i, j int) bool {
-		return resBody.Data[i].Priority < resBody.Data[j].Priority
-	})
-
-	return resBody.Data, nil
-}
 
 // ListNodes retrieves a list of nodes.
 func (c *VirtualEnvironmentClient) ListNodes() ([]*VirtualEnvironmentNodeListResponseData, error) {
