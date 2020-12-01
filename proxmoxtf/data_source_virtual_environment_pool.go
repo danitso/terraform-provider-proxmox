@@ -72,7 +72,7 @@ func dataSourceVirtualEnvironmentPool() *schema.Resource {
 }
 
 func dataSourceVirtualEnvironmentPoolRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

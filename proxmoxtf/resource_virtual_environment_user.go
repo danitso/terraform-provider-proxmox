@@ -140,7 +140,7 @@ func resourceVirtualEnvironmentUser() *schema.Resource {
 }
 
 func resourceVirtualEnvironmentUserCreate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -217,7 +217,7 @@ func resourceVirtualEnvironmentUserCreate(d *schema.ResourceData, m interface{})
 }
 
 func resourceVirtualEnvironmentUserRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -321,7 +321,7 @@ func resourceVirtualEnvironmentUserRead(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceVirtualEnvironmentUserUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -425,7 +425,7 @@ func resourceVirtualEnvironmentUserUpdate(d *schema.ResourceData, m interface{})
 }
 
 func resourceVirtualEnvironmentUserDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

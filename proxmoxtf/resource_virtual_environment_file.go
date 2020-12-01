@@ -188,7 +188,7 @@ func resourceVirtualEnvironmentFile() *schema.Resource {
 }
 
 func resourceVirtualEnvironmentFileCreate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -513,7 +513,7 @@ func resourceVirtualEnvironmentFileIsURL(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceVirtualEnvironmentFileRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -632,7 +632,7 @@ func resourceVirtualEnvironmentFileRead(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceVirtualEnvironmentFileDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

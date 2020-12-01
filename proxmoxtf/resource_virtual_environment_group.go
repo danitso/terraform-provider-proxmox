@@ -81,7 +81,7 @@ func resourceVirtualEnvironmentGroup() *schema.Resource {
 }
 
 func resourceVirtualEnvironmentGroupCreate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -130,7 +130,7 @@ func resourceVirtualEnvironmentGroupCreate(d *schema.ResourceData, m interface{}
 }
 
 func resourceVirtualEnvironmentGroupRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -190,7 +190,7 @@ func resourceVirtualEnvironmentGroupRead(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceVirtualEnvironmentGroupUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -259,7 +259,7 @@ func resourceVirtualEnvironmentGroupUpdate(d *schema.ResourceData, m interface{}
 }
 
 func resourceVirtualEnvironmentGroupDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

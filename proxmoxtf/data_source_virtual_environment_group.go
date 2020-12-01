@@ -67,7 +67,7 @@ func dataSourceVirtualEnvironmentGroup() *schema.Resource {
 }
 
 func dataSourceVirtualEnvironmentGroupRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

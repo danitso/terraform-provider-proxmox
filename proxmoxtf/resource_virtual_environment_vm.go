@@ -970,7 +970,7 @@ func resourceVirtualEnvironmentVMCreate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -1293,7 +1293,7 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 }
 
 func resourceVirtualEnvironmentVMCreateCustom(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -1544,7 +1544,7 @@ func resourceVirtualEnvironmentVMCreateCustom(d *schema.ResourceData, m interfac
 }
 
 func resourceVirtualEnvironmentVMCreateCustomDisks(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -1692,7 +1692,7 @@ func resourceVirtualEnvironmentVMCreateStart(d *schema.ResourceData, m interface
 		return resourceVirtualEnvironmentVMRead(d, m)
 	}
 
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -2046,7 +2046,7 @@ func resourceVirtualEnvironmentVMGetVGADeviceObject(d *schema.ResourceData, m in
 }
 
 func resourceVirtualEnvironmentVMRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -2084,7 +2084,7 @@ func resourceVirtualEnvironmentVMRead(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{}, vmID int, vmConfig *proxmox.VirtualEnvironmentVMGetResponseData, vmStatus *proxmox.VirtualEnvironmentVMGetStatusResponseData) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -2787,7 +2787,7 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 }
 
 func resourceVirtualEnvironmentVMReadNetworkValues(d *schema.ResourceData, m interface{}, vmID int, vmConfig *proxmox.VirtualEnvironmentVMGetResponseData) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -2943,7 +2943,7 @@ func resourceVirtualEnvironmentVMReadPrimitiveValues(d *schema.ResourceData, m i
 }
 
 func resourceVirtualEnvironmentVMUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -3379,7 +3379,7 @@ func resourceVirtualEnvironmentVMUpdate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceVirtualEnvironmentVMDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

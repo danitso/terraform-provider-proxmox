@@ -82,7 +82,7 @@ func resourceVirtualEnvironmentPool() *schema.Resource {
 }
 
 func resourceVirtualEnvironmentPoolCreate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -109,7 +109,7 @@ func resourceVirtualEnvironmentPoolCreate(d *schema.ResourceData, m interface{})
 }
 
 func resourceVirtualEnvironmentPoolRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -166,7 +166,7 @@ func resourceVirtualEnvironmentPoolRead(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceVirtualEnvironmentPoolUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -190,7 +190,7 @@ func resourceVirtualEnvironmentPoolUpdate(d *schema.ResourceData, m interface{})
 }
 
 func resourceVirtualEnvironmentPoolDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

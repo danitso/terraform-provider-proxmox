@@ -6,11 +6,12 @@ package proxmoxtf
 
 import (
 	"errors"
-	"net/url"
-	"os"
-
+	"fmt"
 	"github.com/danitso/terraform-provider-proxmox/proxmox"
 	"github.com/hashicorp/terraform/helper/schema"
+	"net/url"
+	"os"
+	"strings"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 	mkProviderVirtualEnvironmentUsername = "username"
 )
 
-type providerConfiguration struct {
+type ProviderConfiguration struct {
 	veClient *proxmox.VirtualEnvironmentClient
 }
 
@@ -177,31 +178,62 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	// Initialize the client for the Virtual Environment, if required.
 	veConfigBlock := d.Get(mkProviderVirtualEnvironment).([]interface{})
+	veConfig := make(map[string]interface{})
 
 	if len(veConfigBlock) > 0 {
-		veConfig := veConfigBlock[0].(map[string]interface{})
-
-		veClient, err = proxmox.NewVirtualEnvironmentClient(
-			veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
-			veConfig[mkProviderVirtualEnvironmentUsername].(string),
-			veConfig[mkProviderVirtualEnvironmentPassword].(string),
-			veConfig[mkProviderVirtualEnvironmentOTP].(string),
-			veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
-		)
-
-		if err != nil {
-			return nil, err
-		}
+		veConfig = veConfigBlock[0].(map[string]interface{})
 	}
 
-	config := providerConfiguration{
+	// Initialize provider from environmental variables if `TF_ACC` (acceptance testing flag) was set
+	if _, ok := os.LookupEnv("TF_ACC"); ok {
+		envs := []string{
+			mkProviderVirtualEnvironmentEndpoint,
+			mkProviderVirtualEnvironmentUsername,
+			mkProviderVirtualEnvironmentPassword,
+			mkProviderVirtualEnvironmentInsecure,
+			mkProviderVirtualEnvironmentOTP,
+		}
+
+		for _, e := range envs {
+			veConfig[e] = ""
+			upEnv := strings.ToUpper(e)
+			if v, ok := os.LookupEnv(fmt.Sprintf("PROXMOX_VE_%s",upEnv)); ok {
+				veConfig[e] = v
+			} else if v, ok := os.LookupEnv(fmt.Sprintf("PM_VE_%s", upEnv)); ok {
+				veConfig[e] = v
+			}
+		}
+
+		if insecureEnv := os.Getenv("PROXMOX_VE_INSECURE"); insecureEnv == "true" || insecureEnv == "1" {
+			veConfig[mkProviderVirtualEnvironmentInsecure] = true
+		} else if insecureEnv := os.Getenv("PM_VE_INSECURE"); insecureEnv == "true" || insecureEnv == "1" {
+			veConfig[mkProviderVirtualEnvironmentInsecure] = true
+		} else {
+			veConfig[mkProviderVirtualEnvironmentInsecure] = false
+		}
+
+	}
+
+	veClient, err = proxmox.NewVirtualEnvironmentClient(
+		veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
+		veConfig[mkProviderVirtualEnvironmentUsername].(string),
+		veConfig[mkProviderVirtualEnvironmentPassword].(string),
+		veConfig[mkProviderVirtualEnvironmentOTP].(string),
+		true,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	config := ProviderConfiguration{
 		veClient: veClient,
 	}
 
 	return config, nil
 }
 
-func (c *providerConfiguration) GetVEClient() (*proxmox.VirtualEnvironmentClient, error) {
+func (c *ProviderConfiguration) GetVEClient() (*proxmox.VirtualEnvironmentClient, error) {
 	if c.veClient == nil {
 		return nil, errors.New("You must specify the virtual environment details in the provider configuration")
 	}

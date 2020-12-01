@@ -164,7 +164,7 @@ func resourceVirtualEnvironmentCertificateGetUpdateBody(d *schema.ResourceData, 
 }
 
 func resourceVirtualEnvironmentCertificateRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -278,7 +278,7 @@ func resourceVirtualEnvironmentCertificateRead(d *schema.ResourceData, m interfa
 }
 
 func resourceVirtualEnvironmentCertificateUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -303,7 +303,7 @@ func resourceVirtualEnvironmentCertificateUpdate(d *schema.ResourceData, m inter
 }
 
 func resourceVirtualEnvironmentCertificateDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

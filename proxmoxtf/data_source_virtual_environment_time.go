@@ -47,7 +47,7 @@ func dataSourceVirtualEnvironmentTime() *schema.Resource {
 }
 
 func dataSourceVirtualEnvironmentTimeRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

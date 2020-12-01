@@ -566,7 +566,7 @@ func resourceVirtualEnvironmentContainerCreate(d *schema.ResourceData, m interfa
 }
 
 func resourceVirtualEnvironmentContainerCreateClone(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -876,7 +876,7 @@ func resourceVirtualEnvironmentContainerCreateClone(d *schema.ResourceData, m in
 }
 
 func resourceVirtualEnvironmentContainerCreateCustom(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -1145,7 +1145,7 @@ func resourceVirtualEnvironmentContainerCreateStart(d *schema.ResourceData, m in
 		return resourceVirtualEnvironmentContainerRead(d, m)
 	}
 
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -1207,7 +1207,7 @@ func resourceVirtualEnvironmentContainerGetOperatingSystemTypeValidator() schema
 }
 
 func resourceVirtualEnvironmentContainerRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -1599,7 +1599,7 @@ func resourceVirtualEnvironmentContainerRead(d *schema.ResourceData, m interface
 }
 
 func resourceVirtualEnvironmentContainerUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -1895,7 +1895,7 @@ func resourceVirtualEnvironmentContainerUpdate(d *schema.ResourceData, m interfa
 }
 
 func resourceVirtualEnvironmentContainerDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
