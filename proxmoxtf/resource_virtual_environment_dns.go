@@ -89,7 +89,7 @@ func resourceVirtualEnvironmentDNSGetUpdateBody(d *schema.ResourceData, m interf
 }
 
 func resourceVirtualEnvironmentDNSRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -129,7 +129,7 @@ func resourceVirtualEnvironmentDNSRead(d *schema.ResourceData, m interface{}) er
 }
 
 func resourceVirtualEnvironmentDNSUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

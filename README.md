@@ -52,13 +52,46 @@ $ $GOPATH/bin/terraform-provider-proxmox
 If you wish to contribute to the provider, please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Testing the Provider
-In order to test the provider, you can simply run `make test`.
+
+### Unit tests ###
+
+In order to run unit tests for the provider, you can simply run
 
 ```sh
 $ make test
 ```
 
 Tests are limited to regression tests, ensuring backwards compability.
+
+### Acceptance tests ### 
+
+Acceptance tests require available Proxmox Virtual Environment.
+To run ant acceptance tests you need to set `PROXMOX_VE_ENDPOINT`, `PROXMOX_VE_USERNAME`, 
+`PROXMOX_VE_PASSWORD`, `PROXMOX_VE_INSECURE` environmental variables.
+
+```sh
+export PROXMOX_VE_ENDPOINT='<protocol>://<host>:<port>'
+export PROXMOX_VE_USERNAME='<username>'
+export PROXMOX_VE_PASSWORD='<password>'
+export PROXMOX_VE_INSECURE='1'
+
+$ make testacc
+```
+
+or create `.env` file in the root of the folder with the following content
+
+```env
+PROXMOX_VE_ENDPOINT='<protocol>://<host>:<port>'
+PROXMOX_VE_USERNAME='<username>'
+PROXMOX_VE_PASSWORD='<password>'
+PROXMOX_VE_INSECURE='1'
+```
+
+```sh
+$ make testacc
+```
+
+**Note:** Acceptance tests provision real resources
 
 ## Known issues
 

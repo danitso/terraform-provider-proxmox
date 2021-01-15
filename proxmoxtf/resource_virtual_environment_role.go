@@ -40,7 +40,7 @@ func resourceVirtualEnvironmentRole() *schema.Resource {
 }
 
 func resourceVirtualEnvironmentRoleCreate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -72,7 +72,7 @@ func resourceVirtualEnvironmentRoleCreate(d *schema.ResourceData, m interface{})
 }
 
 func resourceVirtualEnvironmentRoleRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -106,7 +106,7 @@ func resourceVirtualEnvironmentRoleRead(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceVirtualEnvironmentRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -135,7 +135,7 @@ func resourceVirtualEnvironmentRoleUpdate(d *schema.ResourceData, m interface{})
 }
 
 func resourceVirtualEnvironmentRoleDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

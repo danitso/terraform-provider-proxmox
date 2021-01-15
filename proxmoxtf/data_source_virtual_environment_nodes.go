@@ -85,7 +85,7 @@ func dataSourceVirtualEnvironmentNodes() *schema.Resource {
 }
 
 func dataSourceVirtualEnvironmentNodesRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

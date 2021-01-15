@@ -65,7 +65,7 @@ func resourceVirtualEnvironmentTimeCreate(d *schema.ResourceData, m interface{})
 }
 
 func resourceVirtualEnvironmentTimeRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -98,7 +98,7 @@ func resourceVirtualEnvironmentTimeRead(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceVirtualEnvironmentTimeUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

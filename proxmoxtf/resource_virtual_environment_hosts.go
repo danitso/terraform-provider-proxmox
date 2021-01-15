@@ -118,7 +118,7 @@ func resourceVirtualEnvironmentHostsCreate(d *schema.ResourceData, m interface{}
 }
 
 func resourceVirtualEnvironmentHostsRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {
@@ -183,7 +183,7 @@ func resourceVirtualEnvironmentHostsRead(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceVirtualEnvironmentHostsUpdate(d *schema.ResourceData, m interface{}) error {
-	config := m.(providerConfiguration)
+	config := m.(ProviderConfiguration)
 	veClient, err := config.GetVEClient()
 
 	if err != nil {

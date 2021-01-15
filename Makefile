@@ -1,4 +1,5 @@
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
+ACC_TEST?=$$(go list ./proxmoxtf/acceptancetests |grep -v 'vendor')
 NAME=$$(grep TerraformProviderName proxmoxtf/version.go | grep -o -e 'terraform-provider-[a-z]*')
 TARGETS=darwin linux windows
 TERRAFORM_PLUGIN_EXTENSION=
@@ -58,6 +59,11 @@ targets: $(TARGETS)
 
 test:
 	go test -v ./...
+
+testacc:
+	@echo "==> Sourcing .env file if available"
+	if [ -f .env ]; then set -o allexport; . ./.env; set +o allexport; fi; \
+	TF_ACC=1 go test -timeout 120m -run ^TestAcc* -tags "${*:-all}" -v $(ACC_TEST) || echo "Build finished in error due to failed tests"
 
 $(TARGETS):
 	GOOS=$@ GOARCH=amd64 CGO_ENABLED=0 go build \
