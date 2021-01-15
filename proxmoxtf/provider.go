@@ -178,52 +178,54 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	// Initialize the client for the Virtual Environment, if required.
 	veConfigBlock := d.Get(mkProviderVirtualEnvironment).([]interface{})
-	veConfig := make(map[string]interface{})
-
-	if len(veConfigBlock) > 0 {
-		veConfig = veConfigBlock[0].(map[string]interface{})
-	}
+	_, AcceptanceTestFlag := os.LookupEnv("TF_ACC")
 
 	// Initialize provider from environmental variables if `TF_ACC` (acceptance testing flag) was set
-	if _, ok := os.LookupEnv("TF_ACC"); ok {
-		envs := []string{
+	if AcceptanceTestFlag {
+		envVeConfig := make(map[string]interface{})
+
+		for _, e := range []string{
 			mkProviderVirtualEnvironmentEndpoint,
 			mkProviderVirtualEnvironmentUsername,
 			mkProviderVirtualEnvironmentPassword,
 			mkProviderVirtualEnvironmentInsecure,
 			mkProviderVirtualEnvironmentOTP,
-		}
-
-		for _, e := range envs {
-			veConfig[e] = ""
+		} {
+			envVeConfig[e] = ""
 			upEnv := strings.ToUpper(e)
-			if v, ok := os.LookupEnv(fmt.Sprintf("PROXMOX_VE_%s",upEnv)); ok {
-				veConfig[e] = v
+			if v, ok := os.LookupEnv(fmt.Sprintf("PROXMOX_VE_%s", upEnv)); ok {
+				envVeConfig[e] = v
 			} else if v, ok := os.LookupEnv(fmt.Sprintf("PM_VE_%s", upEnv)); ok {
-				veConfig[e] = v
+				envVeConfig[e] = v
 			}
 		}
 
 		if insecureEnv := os.Getenv("PROXMOX_VE_INSECURE"); insecureEnv == "true" || insecureEnv == "1" {
-			veConfig[mkProviderVirtualEnvironmentInsecure] = true
+			envVeConfig[mkProviderVirtualEnvironmentInsecure] = true
 		} else if insecureEnv := os.Getenv("PM_VE_INSECURE"); insecureEnv == "true" || insecureEnv == "1" {
-			veConfig[mkProviderVirtualEnvironmentInsecure] = true
+			envVeConfig[mkProviderVirtualEnvironmentInsecure] = true
 		} else {
-			veConfig[mkProviderVirtualEnvironmentInsecure] = false
+			envVeConfig[mkProviderVirtualEnvironmentInsecure] = false
 		}
 
+		veConfigBlock = append(veConfigBlock, envVeConfig)
 	}
 
-	veClient, err = proxmox.NewVirtualEnvironmentClient(
-		veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
-		veConfig[mkProviderVirtualEnvironmentUsername].(string),
-		veConfig[mkProviderVirtualEnvironmentPassword].(string),
-		veConfig[mkProviderVirtualEnvironmentOTP].(string),
-		veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
-	)
+	if len(veConfigBlock) > 0 {
+		veConfig := veConfigBlock[0].(map[string]interface{})
 
-	if err != nil {
-		return nil, err
+		veClient, err = proxmox.NewVirtualEnvironmentClient(
+			veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
+			veConfig[mkProviderVirtualEnvironmentUsername].(string),
+			veConfig[mkProviderVirtualEnvironmentPassword].(string),
+			veConfig[mkProviderVirtualEnvironmentOTP].(string),
+			veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
 	}
 
 	config := ProviderConfiguration{
