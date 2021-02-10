@@ -1,3 +1,9 @@
+## v0.5.0
+
+ENHANCEMENTS:
+
+* resource/virtual_environment_vm: Add `agent.prefixes` argument
+
 ## v0.4.1
 
 OTHER:

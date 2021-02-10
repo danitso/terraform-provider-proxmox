@@ -98,6 +98,7 @@ const (
 	mkResourceVirtualEnvironmentVMACPI                              = "acpi"
 	mkResourceVirtualEnvironmentVMAgent                             = "agent"
 	mkResourceVirtualEnvironmentVMAgentEnabled                      = "enabled"
+	mkResourceVirtualEnvironmentVMAgentPrefixes                     = "prefixes"
 	mkResourceVirtualEnvironmentVMAgentTimeout                      = "timeout"
 	mkResourceVirtualEnvironmentVMAgentTrim                         = "trim"
 	mkResourceVirtualEnvironmentVMAgentType                         = "type"
@@ -234,6 +235,21 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 							Description: "Whether to enable the QEMU agent",
 							Optional:    true,
 							Default:     dvResourceVirtualEnvironmentVMAgentEnabled,
+						},
+						mkResourceVirtualEnvironmentVMAgentPrefixes: {
+							Type:        schema.TypeString,
+							Description: "The prefixes for the network interfaces which need to have an IP assigned before continuing",
+							Optional:    true,
+							DefaultFunc: func() (interface{}, error) {
+								return []interface{}{
+									"eno",
+									"enp",
+									"ens",
+									"eth",
+									"tun",
+								}, nil
+							},
+							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						mkResourceVirtualEnvironmentVMAgentTimeout: {
 							Type:         schema.TypeString,
@@ -1798,7 +1814,7 @@ func resourceVirtualEnvironmentVMCreateCustomDisks(d *schema.ResourceData, m int
 		fileFormat, _ := block[mkResourceVirtualEnvironmentVMDiskFileFormat].(string)
 		size, _ := block[mkResourceVirtualEnvironmentVMDiskSize].(int)
 		speed := block[mkResourceVirtualEnvironmentVMDiskSpeed].([]interface{})
-		diskInterface,_ := block[mkResourcevirtualEnvironmentVMDiskInterface].(string)
+		diskInterface, _ := block[mkResourcevirtualEnvironmentVMDiskInterface].(string)
 
 		if len(speed) == 0 {
 			diskSpeedDefault, err := diskSpeedResource.DefaultValue()
@@ -3032,14 +3048,21 @@ func resourceVirtualEnvironmentVMReadNetworkValues(d *schema.ResourceData, m int
 				return err
 			}
 
+			agentPrefixes := agentBlock[mkResourceVirtualEnvironmentVMAgentPrefixes].([]interface{})
 			agentTimeout, err := time.ParseDuration(agentBlock[mkResourceVirtualEnvironmentVMAgentTimeout].(string))
 
 			if err != nil {
 				return err
 			}
 
+			interfacePrefixes := make([]string, len(agentPrefixes))
+
+			for i, v := range agentPrefixes {
+				interfacePrefixes[i] = v.(string)
+			}
+
 			macAddresses := []interface{}{}
-			networkInterfaces, err := veClient.WaitForNetworkInterfacesFromVMAgent(nodeName, vmID, int(agentTimeout.Seconds()), 5, true)
+			networkInterfaces, err := veClient.WaitForNetworkInterfacesFromVMAgent(nodeName, vmID, int(agentTimeout.Seconds()), 5, true, interfacePrefixes)
 
 			if err == nil && networkInterfaces.Result != nil {
 				ipv4Addresses = make([]interface{}, len(*networkInterfaces.Result))
