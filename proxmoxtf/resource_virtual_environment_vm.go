@@ -237,7 +237,7 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 							Default:     dvResourceVirtualEnvironmentVMAgentEnabled,
 						},
 						mkResourceVirtualEnvironmentVMAgentPrefixes: {
-							Type:        schema.TypeString,
+							Type:        schema.TypeList,
 							Description: "The prefixes for the network interfaces which need to have an IP assigned before continuing",
 							Optional:    true,
 							DefaultFunc: func() (interface{}, error) {

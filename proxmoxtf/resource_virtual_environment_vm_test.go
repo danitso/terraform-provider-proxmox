@@ -89,15 +89,18 @@ func TestResourceVirtualEnvironmentVMSchema(t *testing.T) {
 
 	testOptionalArguments(t, agentSchema, []string{
 		mkResourceVirtualEnvironmentVMAgentEnabled,
+		mkResourceVirtualEnvironmentVMAgentPrefixes,
 		mkResourceVirtualEnvironmentVMAgentTimeout,
 		mkResourceVirtualEnvironmentVMAgentTrim,
 		mkResourceVirtualEnvironmentVMAgentType,
 	})
 
 	testValueTypes(t, agentSchema, map[string]schema.ValueType{
-		mkResourceVirtualEnvironmentVMAgentEnabled: schema.TypeBool,
-		mkResourceVirtualEnvironmentVMAgentTrim:    schema.TypeBool,
-		mkResourceVirtualEnvironmentVMAgentType:    schema.TypeString,
+		mkResourceVirtualEnvironmentVMAgentEnabled:  schema.TypeBool,
+		mkResourceVirtualEnvironmentVMAgentPrefixes: schema.TypeList,
+		mkResourceVirtualEnvironmentVMAgentTimeout:  schema.TypeString,
+		mkResourceVirtualEnvironmentVMAgentTrim:     schema.TypeBool,
+		mkResourceVirtualEnvironmentVMAgentType:     schema.TypeString,
 	})
 
 	audioDeviceSchema := testNestedSchemaExistence(t, s, mkResourceVirtualEnvironmentVMAudioDevice)
