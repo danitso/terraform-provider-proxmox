@@ -69,7 +69,7 @@ func (c *VirtualEnvironmentClient) DoRequest(method, path string, requestBody in
 	var reqBodyReader io.Reader
 	var reqContentLength *int64
 
-	log.Printf("[DEBUG] Performing HTTP %s request (path: %s)", method, path)
+	log.Printf("[DEBUG] Performing HTTP %s request at %s", method, fmt.Sprintf("%s/%s/%s", c.Endpoint, basePathJSONAPI, path))
 
 	modifiedPath := path
 	reqBodyType := ""
