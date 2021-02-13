@@ -193,6 +193,16 @@ const (
 	mkResourceVirtualEnvironmentVMVMID                              = "vm_id"
 )
 
+var (
+	dvResourceVirtualEnvironmentVMAgentPrefixes = []interface{}{
+		"eno",
+		"enp",
+		"ens",
+		"eth",
+		"tun",
+	}
+)
+
 func resourceVirtualEnvironmentVM() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -221,10 +231,11 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 				DefaultFunc: func() (interface{}, error) {
 					return []interface{}{
 						map[string]interface{}{
-							mkResourceVirtualEnvironmentVMAgentEnabled: dvResourceVirtualEnvironmentVMAgentEnabled,
-							mkResourceVirtualEnvironmentVMAgentTimeout: dvResourceVirtualEnvironmentVMAgentTimeout,
-							mkResourceVirtualEnvironmentVMAgentTrim:    dvResourceVirtualEnvironmentVMAgentEnabled,
-							mkResourceVirtualEnvironmentVMAgentType:    dvResourceVirtualEnvironmentVMAgentType,
+							mkResourceVirtualEnvironmentVMAgentEnabled:  dvResourceVirtualEnvironmentVMAgentEnabled,
+							mkResourceVirtualEnvironmentVMAgentPrefixes: dvResourceVirtualEnvironmentVMAgentPrefixes,
+							mkResourceVirtualEnvironmentVMAgentTimeout:  dvResourceVirtualEnvironmentVMAgentTimeout,
+							mkResourceVirtualEnvironmentVMAgentTrim:     dvResourceVirtualEnvironmentVMAgentEnabled,
+							mkResourceVirtualEnvironmentVMAgentType:     dvResourceVirtualEnvironmentVMAgentType,
 						},
 					}, nil
 				},
@@ -241,13 +252,7 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 							Description: "The prefixes for the network interfaces which need to have an IP assigned before continuing",
 							Optional:    true,
 							DefaultFunc: func() (interface{}, error) {
-								return []interface{}{
-									"eno",
-									"enp",
-									"ens",
-									"eth",
-									"tun",
-								}, nil
+								return dvResourceVirtualEnvironmentVMAgentPrefixes, nil
 							},
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
