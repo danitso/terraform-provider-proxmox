@@ -1411,8 +1411,7 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 		return err
 	}
 
-	allDiskInfo := getDiskInfo(vmConfig)
-
+	allDiskInfo := getDiskInfo(vmConfig, d)
 	diskDeviceObjects, err := resourceVirtualEnvironmentVMGetDiskDeviceObjects(d, m, nil)
 
 	if err != nil {
@@ -1420,7 +1419,6 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 	}
 
 	for i := range disk {
-
 		diskBlock := disk[i].(map[string]interface{})
 		diskInterface := diskBlock[mkResourcevirtualEnvironmentVMDiskInterface].(string)
 		dataStoreID := diskBlock[mkResourceVirtualEnvironmentVMDiskDatastoreID].(string)
@@ -1431,25 +1429,27 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 		if currentDiskInfo == nil {
 			diskUpdateBody := &proxmox.VirtualEnvironmentVMUpdateRequestBody{}
 			prefix := diskDigitPrefix(diskInterface)
+
 			switch prefix {
 			case "virtio":
 				if diskUpdateBody.VirtualIODevices == nil {
-					diskUpdateBody.VirtualIODevices = make(proxmox.CustomStorageDevices)
+					diskUpdateBody.VirtualIODevices = proxmox.CustomStorageDevices{}
 				}
 				diskUpdateBody.VirtualIODevices[diskInterface] = diskDeviceObjects[prefix][diskInterface]
 			case "sata":
 				if diskUpdateBody.SATADevices == nil {
-					diskUpdateBody.SATADevices = make(proxmox.CustomStorageDevices)
+					diskUpdateBody.SATADevices = proxmox.CustomStorageDevices{}
 				}
 				diskUpdateBody.SATADevices[diskInterface] = diskDeviceObjects[prefix][diskInterface]
 			case "scsi":
 				if diskUpdateBody.SCSIDevices == nil {
-					diskUpdateBody.SCSIDevices = make(proxmox.CustomStorageDevices)
+					diskUpdateBody.SCSIDevices = proxmox.CustomStorageDevices{}
 				}
 				diskUpdateBody.SCSIDevices[diskInterface] = diskDeviceObjects[prefix][diskInterface]
 			}
 
 			err = veClient.UpdateVM(nodeName, vmID, diskUpdateBody)
+
 			if err != nil {
 				return err
 			}
@@ -1468,6 +1468,7 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 		}
 
 		deleteOriginalDisk := proxmox.CustomBool(true)
+
 		diskMoveBody := &proxmox.VirtualEnvironmentVMMoveDiskRequestBody{
 			DeleteOriginalDisk: &deleteOriginalDisk,
 			Disk:               diskInterface,
@@ -1479,7 +1480,18 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 			Size: fmt.Sprintf("%dG", diskSize),
 		}
 
+		moveDisk := false
+
 		if dataStoreID != "" {
+			moveDisk = true
+
+			if allDiskInfo[diskInterface] != nil {
+				fileIDParts := strings.Split(allDiskInfo[diskInterface].FileVolume, ":")
+				moveDisk = dataStoreID != fileIDParts[0]
+			}
+		}
+
+		if moveDisk {
 			moveDiskTimeout := d.Get(mkResourceVirtualEnvironmentVMTimeoutMoveDisk).(int)
 			err = veClient.MoveVMDisk(nodeName, vmID, diskMoveBody, moveDiskTimeout)
 
@@ -1488,10 +1500,12 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 			}
 		}
 
-		err = veClient.ResizeVMDisk(nodeName, vmID, diskResizeBody)
+		if diskSize > compareNumber {
+			err = veClient.ResizeVMDisk(nodeName, vmID, diskResizeBody)
 
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -2103,12 +2117,14 @@ func resourceVirtualEnvironmentVMGetCPUArchitectureValidator() schema.SchemaVali
 
 func resourceVirtualEnvironmentVMGetDiskDeviceObjects(d *schema.ResourceData, m interface{}, disks []interface{}) (map[string]map[string]proxmox.CustomStorageDevice, error) {
 	var diskDevice []interface{}
+
 	if disks != nil {
 		diskDevice = disks
 	} else {
 		diskDevice = d.Get(mkResourceVirtualEnvironmentVMDisk).([]interface{})
 	}
-	diskDeviceObjects := make(map[string]map[string]proxmox.CustomStorageDevice)
+
+	diskDeviceObjects := map[string]map[string]proxmox.CustomStorageDevice{}
 	resource := resourceVirtualEnvironmentVM()
 
 	for _, diskEntry := range diskDevice {
@@ -2172,7 +2188,7 @@ func resourceVirtualEnvironmentVMGetDiskDeviceObjects(d *schema.ResourceData, m 
 		}
 
 		if _, present := diskDeviceObjects[baseDiskInterface]; !present {
-			diskDeviceObjects[baseDiskInterface] = make(map[string]proxmox.CustomStorageDevice)
+			diskDeviceObjects[baseDiskInterface] = map[string]proxmox.CustomStorageDevice{}
 		}
 
 		diskDeviceObjects[baseDiskInterface][diskInterface] = diskDevice
@@ -2455,7 +2471,6 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 
 	// Compare the IDE devices to the CDROM and cloud-init configurations stored in the state.
 	if vmConfig.IDEDevice3 != nil {
-
 		cdrom := make([]interface{}, 1)
 		cdromBlock := map[string]interface{}{}
 		currentCDROM := d.Get(mkResourceVirtualEnvironmentVMCDROM).([]interface{})
@@ -2565,9 +2580,10 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 		d.Set(mkResourceVirtualEnvironmentVMCPU, []interface{}{cpu})
 	}
 
+	currentDiskList := d.Get(mkResourceVirtualEnvironmentVMDisk).([]interface{})
 	diskMap := map[string]interface{}{}
+	diskObjects := getDiskInfo(vmConfig, d)
 	orderedDiskList := []interface{}{}
-	diskObjects := getDiskInfo(vmConfig)
 
 	for di, dd := range diskObjects {
 		disk := map[string]interface{}{}
@@ -2580,12 +2596,16 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 
 		disk[mkResourceVirtualEnvironmentVMDiskDatastoreID] = fileIDParts[0]
 
-		disk[mkResourceVirtualEnvironmentVMDiskFileID] = dd.FileID
 		if dd.Format == nil {
 			disk[mkResourceVirtualEnvironmentVMDiskFileFormat] = "qcow2"
 		} else {
 			disk[mkResourceVirtualEnvironmentVMDiskFileFormat] = dd.Format
 		}
+
+		if dd.FileID != nil {
+			disk[mkResourceVirtualEnvironmentVMDiskFileID] = dd.FileID
+		}
+
 		disk[mkResourcevirtualEnvironmentVMDiskInterface] = di
 
 		diskSize := 0
@@ -2638,18 +2658,22 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 	}
 
 	keyList := []string{}
+
 	for key := range diskMap {
 		keyList = append(keyList, key)
 	}
+
 	sort.Strings(keyList)
+
 	for _, k := range keyList {
 		orderedDiskList = append(orderedDiskList, diskMap[k])
 	}
+
 	if len(clone) > 0 {
-		if len(orderedDiskList) > 0 {
+		if len(currentDiskList) > 0 {
 			d.Set(mkResourceVirtualEnvironmentVMDisk, orderedDiskList)
 		}
-	} else if len(orderedDiskList) > 0 {
+	} else if len(currentDiskList) > 0 {
 		d.Set(mkResourceVirtualEnvironmentVMDisk, orderedDiskList)
 	}
 
@@ -3401,7 +3425,7 @@ func resourceVirtualEnvironmentVMUpdate(d *schema.ResourceData, m interface{}) e
 			return err
 		}
 
-		diskDeviceInfo := getDiskInfo(vmConfig)
+		diskDeviceInfo := getDiskInfo(vmConfig, d)
 
 		for prefix, diskMap := range diskDeviceObjects {
 			if diskMap == nil {
@@ -3423,27 +3447,30 @@ func resourceVirtualEnvironmentVMUpdate(d *schema.ResourceData, m interface{}) e
 				case "virtio":
 					{
 						if updateBody.VirtualIODevices == nil {
-							updateBody.VirtualIODevices = make(proxmox.CustomStorageDevices)
+							updateBody.VirtualIODevices = proxmox.CustomStorageDevices{}
 						}
+
 						updateBody.VirtualIODevices[key] = tmp
 					}
 				case "sata":
 					{
 						if updateBody.SATADevices == nil {
-							updateBody.SATADevices = make(proxmox.CustomStorageDevices)
+							updateBody.SATADevices = proxmox.CustomStorageDevices{}
 						}
+
 						updateBody.SATADevices[key] = tmp
 					}
 				case "scsi":
 					{
 						if updateBody.SCSIDevices == nil {
-							updateBody.SCSIDevices = make(proxmox.CustomStorageDevices)
+							updateBody.SCSIDevices = proxmox.CustomStorageDevices{}
 						}
+
 						updateBody.SCSIDevices[key] = tmp
 					}
 				case "ide":
 					{
-						//not sure right now
+						// Investigate whether to support IDE mapping.
 					}
 				default:
 					return fmt.Errorf("Device prefix %s not supported", prefix)
@@ -3641,11 +3668,13 @@ func resourceVirtualEnvironmentVMUpdateDiskLocationAndSize(d *schema.ResourceDat
 		diskOld, diskNew := d.GetChange(mkResourceVirtualEnvironmentVMDisk)
 
 		diskOldEntries, err := resourceVirtualEnvironmentVMGetDiskDeviceObjects(d, m, diskOld.([]interface{}))
+
 		if err != nil {
 			return err
 		}
 
 		diskNewEntries, err := resourceVirtualEnvironmentVMGetDiskDeviceObjects(d, m, diskNew.([]interface{}))
+
 		if err != nil {
 			return err
 		}
@@ -3659,7 +3688,7 @@ func resourceVirtualEnvironmentVMUpdateDiskLocationAndSize(d *schema.ResourceDat
 					return fmt.Errorf("Deletion of disks not supported. Please delete disk by hand. Old Interface was %s", *oldDisk.Interface)
 				}
 
-				if oldDisk.ID != diskNewEntries[prefix][oldKey].ID {
+				if *oldDisk.ID != *diskNewEntries[prefix][oldKey].ID {
 					deleteOriginalDisk := proxmox.CustomBool(true)
 
 					diskMoveBodies = append(diskMoveBodies, &proxmox.VirtualEnvironmentVMMoveDiskRequestBody{
