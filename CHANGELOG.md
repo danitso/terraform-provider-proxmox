@@ -4,6 +4,11 @@ ENHANCEMENTS:
 
 * resource/virtual_environment_vm: Add `agent.prefixes` argument
 
+OTHER:
+
+* provider/example: Remove support for Terraform v0.11 and older
+* provider/makefile: Update to use plugin caching to support local builds
+
 ## v0.4.1
 
 OTHER:
