@@ -23,6 +23,20 @@ provider "proxmox" {
 }
 ```
 
+```
+provider "proxmox" {
+  virtual_environment {
+    endpoint = "https://10.0.0.2"
+    insecure = true
+
+    token = {
+      id     = "root@pam!automation"
+      secret = "a2d3b007-07a5-46d1-b52d-3ee0a15ffadd"
+    }
+  }
+}
+```
+
 ## Authentication
 
 The Proxmox provider offers a flexible means of providing credentials for authentication. The following methods are supported, in this order, and explained below:
@@ -35,13 +49,26 @@ The Proxmox provider offers a flexible means of providing credentials for authen
 Warning: Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file ever be committed to a public version control system.
 {: .label .label-red }
 
-Static credentials can be provided by adding a `username` and `password` in-line in the Proxmox provider block:
+Static credentials can be provided by adding the `username` and `password` arguments in-line in the Proxmox provider block:
 
 ```
 provider "proxmox" {
   virtual_environment {
     username = "username@realm"
     password = "a-strong-password"
+  }
+}
+```
+
+A token can be provided the same way by adding an in-line `token` block instead:
+
+```
+provider "proxmox" {
+  virtual_environment {
+    token = {
+      id     = "username@realm!my-token-name"
+      secret = "4115ecd7-ba6f-41ef-bf42-2e19d0afaa88"
+    }
   }
 }
 ```
@@ -72,5 +99,8 @@ In addition to [generic provider arguments](https://www.terraform.io/docs/config
     * `endpoint` - (Required) The endpoint for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_ENDPOINT`).
     * `insecure` - (Optional) Whether to skip the TLS verification step (can also be sourced from `PROXMOX_VE_INSECURE`). If omitted, defaults to `false`.
     * `otp` - (Optional) The one-time password for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_OTP`).
-    * `password` - (Required) The password for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_PASSWORD`).
-    * `username` - (Required) The username and realm for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_USERNAME`).
+    * `password` - (Optional) The password for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_PASSWORD`).
+    * `token` - (Optional) The token for the Proxmox Virtual Environment API.
+        * `id` - (Optional) The token identifier for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_TOKEN_ID`).
+        * `secret` - (Optional) The token secret for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_TOKEN_SECRET`).
+    * `username` - (Optional) The username and realm for the Proxmox Virtual Environment API (can also be sourced from `PROXMOX_VE_USERNAME`).

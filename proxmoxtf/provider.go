@@ -14,17 +14,22 @@ import (
 )
 
 const (
-	dvProviderVirtualEnvironmentEndpoint = ""
-	dvProviderVirtualEnvironmentOTP      = ""
-	dvProviderVirtualEnvironmentPassword = ""
-	dvProviderVirtualEnvironmentUsername = ""
+	dvProviderVirtualEnvironmentEndpoint    = ""
+	dvProviderVirtualEnvironmentOTP         = ""
+	dvProviderVirtualEnvironmentPassword    = ""
+	dvProviderVirtualEnvironmentTokenID     = ""
+	dvProviderVirtualEnvironmentTokenSecret = ""
+	dvProviderVirtualEnvironmentUsername    = ""
 
-	mkProviderVirtualEnvironment         = "virtual_environment"
-	mkProviderVirtualEnvironmentEndpoint = "endpoint"
-	mkProviderVirtualEnvironmentInsecure = "insecure"
-	mkProviderVirtualEnvironmentOTP      = "otp"
-	mkProviderVirtualEnvironmentPassword = "password"
-	mkProviderVirtualEnvironmentUsername = "username"
+	mkProviderVirtualEnvironment            = "virtual_environment"
+	mkProviderVirtualEnvironmentEndpoint    = "endpoint"
+	mkProviderVirtualEnvironmentInsecure    = "insecure"
+	mkProviderVirtualEnvironmentOTP         = "otp"
+	mkProviderVirtualEnvironmentPassword    = "password"
+	mkProviderVirtualEnvironmentToken       = "token"
+	mkProviderVirtualEnvironmentTokenID     = "id"
+	mkProviderVirtualEnvironmentTokenSecret = "secret"
+	mkProviderVirtualEnvironmentUsername    = "username"
 )
 
 type providerConfiguration struct {
@@ -135,17 +140,34 @@ func Provider() *schema.Provider {
 								[]string{"PROXMOX_VE_PASSWORD", "PM_VE_PASSWORD"},
 								dvProviderVirtualEnvironmentPassword,
 							),
-							ValidateFunc: func(v interface{}, k string) (warns []string, errs []error) {
-								value := v.(string)
-
-								if value == "" {
-									return []string{}, []error{
-										errors.New("You must specify a password for the Proxmox Virtual Environment API"),
-									}
-								}
-
-								return []string{}, []error{}
+						},
+						mkProviderVirtualEnvironmentToken: {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "The token for the Proxmox Virtual Environment API",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									mkProviderVirtualEnvironmentTokenID: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The token identifier",
+										DefaultFunc: schema.MultiEnvDefaultFunc(
+											[]string{"PROXMOX_VE_TOKEN_ID", "PM_VE_TOKEN_ID"},
+											dvProviderVirtualEnvironmentTokenID,
+										),
+									},
+									mkProviderVirtualEnvironmentTokenSecret: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The token secret",
+										DefaultFunc: schema.MultiEnvDefaultFunc(
+											[]string{"PROXMOX_VE_TOKEN_SECRET", "PM_VE_TOKEN_SECRET"},
+											dvProviderVirtualEnvironmentTokenSecret,
+										),
+									},
+								},
 							},
+							MaxItems: 1,
 						},
 						mkProviderVirtualEnvironmentUsername: {
 							Type:        schema.TypeString,
@@ -155,17 +177,6 @@ func Provider() *schema.Provider {
 								[]string{"PROXMOX_VE_USERNAME", "PM_VE_USERNAME"},
 								dvProviderVirtualEnvironmentUsername,
 							),
-							ValidateFunc: func(v interface{}, k string) (warns []string, errs []error) {
-								value := v.(string)
-
-								if value == "" {
-									return []string{}, []error{
-										errors.New("You must specify a username for the Proxmox Virtual Environment API (valid: username@realm)"),
-									}
-								}
-
-								return []string{}, []error{}
-							},
 						},
 					},
 				},
@@ -183,18 +194,37 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	veConfigBlock := d.Get(mkProviderVirtualEnvironment).([]interface{})
 
 	if len(veConfigBlock) > 0 {
-		veConfig := veConfigBlock[0].(map[string]interface{})
+		veConfig, ok := veConfigBlock[0].(map[string]interface{})
 
-		veClient, err = proxmox.NewVirtualEnvironmentClient(
-			veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
-			veConfig[mkProviderVirtualEnvironmentUsername].(string),
-			veConfig[mkProviderVirtualEnvironmentPassword].(string),
-			veConfig[mkProviderVirtualEnvironmentOTP].(string),
-			veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
-		)
+		if ok {
+			token := ""
+			veConfigTokenBlock := veConfig[mkProviderVirtualEnvironmentToken].([]interface{})
 
-		if err != nil {
-			return nil, err
+			if len(veConfigTokenBlock) > 0 {
+				veConfigToken, ok := veConfigTokenBlock[0].(map[string]interface{})
+
+				if ok {
+					veConfigTokenID := veConfigToken[mkProviderVirtualEnvironmentTokenID].(string)
+					veConfigTokenSecret := veConfigToken[mkProviderVirtualEnvironmentTokenSecret].(string)
+
+					if veConfigTokenID != "" || veConfigTokenSecret != "" {
+						token = veConfigTokenID + "=" + veConfigTokenSecret
+					}
+				}
+			}
+
+			veClient, err = proxmox.NewVirtualEnvironmentClient(
+				veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
+				veConfig[mkProviderVirtualEnvironmentUsername].(string),
+				veConfig[mkProviderVirtualEnvironmentPassword].(string),
+				token,
+				veConfig[mkProviderVirtualEnvironmentOTP].(string),
+				veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
+			)
+
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 

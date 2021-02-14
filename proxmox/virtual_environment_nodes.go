@@ -153,11 +153,11 @@ func (c *VirtualEnvironmentClient) OpenNodeShell(nodeName string) (*ssh.Client, 
 		return nil, err
 	}
 
-	ur := strings.Split(c.Username, "@")
+	ur := strings.Split(*c.Username, "@")
 
 	sshConfig := &ssh.ClientConfig{
 		User:            ur[0],
-		Auth:            []ssh.AuthMethod{ssh.Password(c.Password)},
+		Auth:            []ssh.AuthMethod{ssh.Password(*c.Password)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
