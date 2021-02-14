@@ -17,6 +17,7 @@ const (
 	dvProviderVirtualEnvironmentEndpoint = ""
 	dvProviderVirtualEnvironmentOTP      = ""
 	dvProviderVirtualEnvironmentPassword = ""
+	dvProviderVirtualEnvironmentToken    = ""
 	dvProviderVirtualEnvironmentUsername = ""
 
 	mkProviderVirtualEnvironment         = "virtual_environment"
@@ -24,6 +25,7 @@ const (
 	mkProviderVirtualEnvironmentInsecure = "insecure"
 	mkProviderVirtualEnvironmentOTP      = "otp"
 	mkProviderVirtualEnvironmentPassword = "password"
+	mkProviderVirtualEnvironmentToken    = "token"
 	mkProviderVirtualEnvironmentUsername = "username"
 )
 
@@ -135,17 +137,15 @@ func Provider() *schema.Provider {
 								[]string{"PROXMOX_VE_PASSWORD", "PM_VE_PASSWORD"},
 								dvProviderVirtualEnvironmentPassword,
 							),
-							ValidateFunc: func(v interface{}, k string) (warns []string, errs []error) {
-								value := v.(string)
-
-								if value == "" {
-									return []string{}, []error{
-										errors.New("You must specify a password for the Proxmox Virtual Environment API"),
-									}
-								}
-
-								return []string{}, []error{}
-							},
+						},
+						mkProviderVirtualEnvironmentToken: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The token for the Proxmox Virtual Environment API",
+							DefaultFunc: schema.MultiEnvDefaultFunc(
+								[]string{"PROXMOX_VE_TOKEN", "PM_VE_TOKEN"},
+								dvProviderVirtualEnvironmentToken,
+							),
 						},
 						mkProviderVirtualEnvironmentUsername: {
 							Type:        schema.TypeString,
@@ -155,17 +155,6 @@ func Provider() *schema.Provider {
 								[]string{"PROXMOX_VE_USERNAME", "PM_VE_USERNAME"},
 								dvProviderVirtualEnvironmentUsername,
 							),
-							ValidateFunc: func(v interface{}, k string) (warns []string, errs []error) {
-								value := v.(string)
-
-								if value == "" {
-									return []string{}, []error{
-										errors.New("You must specify a username for the Proxmox Virtual Environment API (valid: username@realm)"),
-									}
-								}
-
-								return []string{}, []error{}
-							},
 						},
 					},
 				},
@@ -189,6 +178,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
 			veConfig[mkProviderVirtualEnvironmentUsername].(string),
 			veConfig[mkProviderVirtualEnvironmentPassword].(string),
+			veConfig[mkProviderVirtualEnvironmentToken].(string),
 			veConfig[mkProviderVirtualEnvironmentOTP].(string),
 			veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
 		)

@@ -21,7 +21,7 @@ import (
 )
 
 // NewVirtualEnvironmentClient creates and initializes a VirtualEnvironmentClient instance.
-func NewVirtualEnvironmentClient(endpoint, username, password, otp string, insecure bool) (*VirtualEnvironmentClient, error) {
+func NewVirtualEnvironmentClient(endpoint, username, password, token, otp string, insecure bool) (*VirtualEnvironmentClient, error) {
 	url, err := url.ParseRequestURI(endpoint)
 
 	if err != nil {
@@ -32,18 +32,35 @@ func NewVirtualEnvironmentClient(endpoint, username, password, otp string, insec
 		return nil, errors.New("You must specify a secure endpoint for the Proxmox Virtual Environment API (valid: https://host:port/)")
 	}
 
-	if password == "" {
-		return nil, errors.New("You must specify a password for the Proxmox Virtual Environment API")
-	}
+	if token == "" {
+		if password == "" {
+			return nil, errors.New("You must specify a password or a token for the Proxmox Virtual Environment API")
+		}
 
-	if username == "" {
-		return nil, errors.New("You must specify a username for the Proxmox Virtual Environment API")
+		if username == "" {
+			return nil, errors.New("You must specify a username or a token for the Proxmox Virtual Environment API")
+		}
 	}
 
 	var pOTP *string
+	var pPassword *string
+	var pToken *string
+	var pUsername *string
 
 	if otp != "" {
 		pOTP = &otp
+	}
+
+	if password != "" {
+		pPassword = &password
+	}
+
+	if token != "" {
+		pToken = &token
+	}
+
+	if username != "" {
+		pUsername = &username
 	}
 
 	httpClient := &http.Client{
@@ -58,8 +75,9 @@ func NewVirtualEnvironmentClient(endpoint, username, password, otp string, insec
 		Endpoint:   strings.TrimRight(url.String(), "/"),
 		Insecure:   insecure,
 		OTP:        pOTP,
-		Password:   password,
-		Username:   username,
+		Password:   pPassword,
+		Token:      pToken,
+		Username:   pUsername,
 		httpClient: httpClient,
 	}, nil
 }

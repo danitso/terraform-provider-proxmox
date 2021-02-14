@@ -1,6 +1,8 @@
-## v0.5.0 (UNRELEASED)
+## v0.5.0
 
-TBD
+ENHANCEMENTS:
+
+* provider/configuration: Add `virtual_environment.token` argument for API token support
 
 ## v0.4.2
 
