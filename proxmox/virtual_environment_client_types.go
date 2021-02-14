@@ -23,8 +23,9 @@ type VirtualEnvironmentClient struct {
 	Endpoint string
 	Insecure bool
 	OTP      *string
-	Password string
-	Username string
+	Password *string
+	Token    *string
+	Username *string
 
 	authenticationData *VirtualEnvironmentAuthenticationResponseData
 	httpClient         *http.Client

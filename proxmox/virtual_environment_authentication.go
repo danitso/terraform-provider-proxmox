@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -29,15 +30,15 @@ func (c *VirtualEnvironmentClient) Authenticate(reset bool) error {
 	if c.OTP != nil {
 		reqBody = bytes.NewBufferString(fmt.Sprintf(
 			"username=%s&password=%s&otp=%s",
-			url.QueryEscape(c.Username),
-			url.QueryEscape(c.Password),
+			url.QueryEscape(*c.Username),
+			url.QueryEscape(*c.Password),
 			url.QueryEscape(*c.OTP),
 		))
 	} else {
 		reqBody = bytes.NewBufferString(fmt.Sprintf(
 			"username=%s&password=%s",
-			url.QueryEscape(c.Username),
-			url.QueryEscape(c.Password),
+			url.QueryEscape(*c.Username),
+			url.QueryEscape(*c.Password),
 		))
 	}
 
@@ -91,20 +92,35 @@ func (c *VirtualEnvironmentClient) Authenticate(reset bool) error {
 
 // AuthenticateRequest adds authentication data to a new request.
 func (c *VirtualEnvironmentClient) AuthenticateRequest(req *http.Request) error {
-	err := c.Authenticate(false)
+	if c.Token != nil {
+		req.Header.Add("Authorization", "PVEAPIToken="+*c.Token)
+	} else {
+		err := c.Authenticate(false)
 
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 
-	req.AddCookie(&http.Cookie{
-		Name:  "PVEAuthCookie",
-		Value: *c.authenticationData.Ticket,
-	})
+		req.AddCookie(&http.Cookie{
+			Name:  "PVEAuthCookie",
+			Value: *c.authenticationData.Ticket,
+		})
 
-	if req.Method != "GET" {
-		req.Header.Add("CSRFPreventionToken", *c.authenticationData.CSRFPreventionToken)
+		if req.Method != "GET" {
+			req.Header.Add("CSRFPreventionToken", *c.authenticationData.CSRFPreventionToken)
+		}
 	}
 
 	return nil
+}
+
+// IsDefaultRootAccount determines if a username or token matches the default root account.
+func (c *VirtualEnvironmentClient) IsDefaultRootAccount() bool {
+	if c.Token != nil && strings.HasPrefix(*c.Token, DefaultRootAccount+"!") {
+		return true
+	} else if c.Username != nil && *c.Username == DefaultRootAccount {
+		return true
+	}
+
+	return false
 }

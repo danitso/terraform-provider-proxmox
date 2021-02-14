@@ -1,7 +1,8 @@
-## v0.5.0 (UNRELEASED)
+## v0.5.0
 
 ENHANCEMENTS:
 
+* provider/configuration: Add `virtual_environment.token` argument for API token support
 * resource/virtual_environment_vm: Add `agent.prefixes` argument
 
 ## v0.4.2
