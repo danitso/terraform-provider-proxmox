@@ -1,5 +1,9 @@
 ## v0.5.0
 
+FEATURES:
+
+* **New Resource:** `proxmox_virtual_environment_user_token`
+
 ENHANCEMENTS:
 
 * data-source/user: Add `tokens` attribute

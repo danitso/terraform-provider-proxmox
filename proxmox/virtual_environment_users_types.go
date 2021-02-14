@@ -67,6 +67,25 @@ type VirtualEnvironmentUserListResponseData struct {
 	Tokens         *[]VirtualEnvironmentUserTokenGetResponseData `json:"tokens,omitempty"`
 }
 
+// VirtualEnvironmentUserTokenCreateRequestBody contains the data for a user token create request.
+type VirtualEnvironmentUserTokenCreateRequestBody struct {
+	Comment             *string          `json:"comment,omitempty" url:"comment,omitempty"`
+	ExpirationDate      *CustomTimestamp `json:"expire,omitempty" url:"expire,omitempty,unix"`
+	PrivilegeSeperation *CustomBool      `json:"privsep,omitempty"  url:"privsep,omitempty,int"`
+}
+
+// VirtualEnvironmentUserTokenCreateResponseBody contains the body from a user token create response.
+type VirtualEnvironmentUserTokenCreateResponseBody struct {
+	Data *VirtualEnvironmentUserTokenCreateResponseData `json:"data,omitempty"`
+}
+
+// VirtualEnvironmentUserTokenCreateResponseData contains the data from a user token create response.
+type VirtualEnvironmentUserTokenCreateResponseData struct {
+	FullTokenID *string                                     `json:"full-tokenid,omitempty"`
+	Information *VirtualEnvironmentUserTokenGetResponseData `json:"info,omitempty"`
+	Value       *string                                     `json:"value,omitempty"`
+}
+
 // VirtualEnvironmentUserTokenGetResponseBody contains the body from a user token get response.
 type VirtualEnvironmentUserTokenGetResponseBody struct {
 	Data *VirtualEnvironmentUserTokenGetResponseData `json:"data,omitempty"`
@@ -74,6 +93,39 @@ type VirtualEnvironmentUserTokenGetResponseBody struct {
 
 // VirtualEnvironmentUserTokenGetResponseData contains the data from a user token get response.
 type VirtualEnvironmentUserTokenGetResponseData struct {
+	Comment             *string          `json:"comment,omitempty"`
+	ExpirationDate      *CustomTimestamp `json:"expire,omitempty"`
+	ID                  *string          `json:"tokenid,omitempty"`
+	PrivilegeSeperation *CustomBool      `json:"privsep,omitempty"`
+}
+
+// VirtualEnvironmentUserTokenListResponseBody contains the body from a user token list response.
+type VirtualEnvironmentUserTokenListResponseBody struct {
+	Data []*VirtualEnvironmentUserTokenListResponseData `json:"data,omitempty"`
+}
+
+// VirtualEnvironmentUserTokenListResponseData contains the data from a user token list response.
+type VirtualEnvironmentUserTokenListResponseData struct {
+	Comment             *string          `json:"comment,omitempty"`
+	ExpirationDate      *CustomTimestamp `json:"expire,omitempty"`
+	ID                  *string          `json:"tokenid,omitempty"`
+	PrivilegeSeperation *CustomBool      `json:"privsep,omitempty"`
+}
+
+// VirtualEnvironmentUserTokenUpdateRequestBody contains the data for a user token update request.
+type VirtualEnvironmentUserTokenUpdateRequestBody struct {
+	Comment             *string          `json:"comment,omitempty" url:"comment,omitempty"`
+	ExpirationDate      *CustomTimestamp `json:"expire,omitempty" url:"expire,omitempty,unix"`
+	PrivilegeSeperation *CustomBool      `json:"privsep,omitempty"  url:"privsep,omitempty,int"`
+}
+
+// VirtualEnvironmentUserTokenUpdateResponseBody contains the body from a user token update response.
+type VirtualEnvironmentUserTokenUpdateResponseBody struct {
+	Data *VirtualEnvironmentUserTokenUpdateResponseData `json:"data,omitempty"`
+}
+
+// VirtualEnvironmentUserTokenUpdateResponseData contains the data from a user token update response.
+type VirtualEnvironmentUserTokenUpdateResponseData struct {
 	Comment             *string          `json:"comment,omitempty"`
 	ExpirationDate      *CustomTimestamp `json:"expire,omitempty"`
 	ID                  *string          `json:"tokenid,omitempty"`
