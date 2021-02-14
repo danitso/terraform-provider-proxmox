@@ -194,32 +194,37 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	veConfigBlock := d.Get(mkProviderVirtualEnvironment).([]interface{})
 
 	if len(veConfigBlock) > 0 {
-		token := ""
+		veConfig, ok := veConfigBlock[0].(map[string]interface{})
 
-		veConfig := veConfigBlock[0].(map[string]interface{})
-		veConfigTokenBlock := veConfig[mkProviderVirtualEnvironmentToken].([]interface{})
+		if ok {
+			token := ""
+			veConfigTokenBlock := veConfig[mkProviderVirtualEnvironmentToken].([]interface{})
 
-		if len(veConfigTokenBlock) > 0 {
-			veConfigToken := veConfigTokenBlock[0].(map[string]interface{})
-			veConfigTokenID := veConfigToken[mkProviderVirtualEnvironmentTokenID].(string)
-			veConfigTokenSecret := veConfigToken[mkProviderVirtualEnvironmentTokenSecret].(string)
+			if len(veConfigTokenBlock) > 0 {
+				veConfigToken, ok := veConfigTokenBlock[0].(map[string]interface{})
 
-			if veConfigTokenID != "" || veConfigTokenSecret != "" {
-				token = veConfigTokenID + "=" + veConfigTokenSecret
+				if ok {
+					veConfigTokenID := veConfigToken[mkProviderVirtualEnvironmentTokenID].(string)
+					veConfigTokenSecret := veConfigToken[mkProviderVirtualEnvironmentTokenSecret].(string)
+
+					if veConfigTokenID != "" || veConfigTokenSecret != "" {
+						token = veConfigTokenID + "=" + veConfigTokenSecret
+					}
+				}
 			}
-		}
 
-		veClient, err = proxmox.NewVirtualEnvironmentClient(
-			veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
-			veConfig[mkProviderVirtualEnvironmentUsername].(string),
-			veConfig[mkProviderVirtualEnvironmentPassword].(string),
-			token,
-			veConfig[mkProviderVirtualEnvironmentOTP].(string),
-			veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
-		)
+			veClient, err = proxmox.NewVirtualEnvironmentClient(
+				veConfig[mkProviderVirtualEnvironmentEndpoint].(string),
+				veConfig[mkProviderVirtualEnvironmentUsername].(string),
+				veConfig[mkProviderVirtualEnvironmentPassword].(string),
+				token,
+				veConfig[mkProviderVirtualEnvironmentOTP].(string),
+				veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
+			)
 
-		if err != nil {
-			return nil, err
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
