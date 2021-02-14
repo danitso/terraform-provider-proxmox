@@ -15,6 +15,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/google/go-querystring/query"
@@ -32,14 +33,18 @@ func NewVirtualEnvironmentClient(endpoint, username, password, token, otp string
 		return nil, errors.New("You must specify a secure endpoint for the Proxmox Virtual Environment API (valid: https://host:port/)")
 	}
 
-	if token == "" {
-		if password == "" {
-			return nil, errors.New("You must specify a password or a token for the Proxmox Virtual Environment API")
-		}
+	if token != "" {
+		if matched, err := regexp.Match(`^(?i)[^@]+@[^\!]+\![a-z][a-z0-9\.\-_]+=[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}$`, []byte(token)); !matched {
+			if err != nil {
+				return nil, err
+			}
 
-		if username == "" {
-			return nil, errors.New("You must specify a username or a token for the Proxmox Virtual Environment API")
+			return nil, errors.New("You must specify a valid token for the Proxmox Virtual Environment API")
 		}
+	} else if username == "" {
+		return nil, errors.New("You must specify a username or a token for the Proxmox Virtual Environment API")
+	} else if password == "" {
+		return nil, errors.New("You must specify a password or a token for the Proxmox Virtual Environment API")
 	}
 
 	var pOTP *string

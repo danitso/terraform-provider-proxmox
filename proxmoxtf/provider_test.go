@@ -49,7 +49,19 @@ func TestProviderSchema(t *testing.T) {
 		mkProviderVirtualEnvironmentInsecure: schema.TypeBool,
 		mkProviderVirtualEnvironmentOTP:      schema.TypeString,
 		mkProviderVirtualEnvironmentPassword: schema.TypeString,
-		mkProviderVirtualEnvironmentToken:    schema.TypeString,
+		mkProviderVirtualEnvironmentToken:    schema.TypeList,
 		mkProviderVirtualEnvironmentUsername: schema.TypeString,
+	})
+
+	veTokenSchema := testNestedSchemaExistence(t, veSchema, mkProviderVirtualEnvironmentToken)
+
+	testOptionalArguments(t, veTokenSchema, []string{
+		mkProviderVirtualEnvironmentTokenID,
+		mkProviderVirtualEnvironmentTokenSecret,
+	})
+
+	testValueTypes(t, veTokenSchema, map[string]schema.ValueType{
+		mkProviderVirtualEnvironmentTokenID:     schema.TypeString,
+		mkProviderVirtualEnvironmentTokenSecret: schema.TypeString,
 	})
 }

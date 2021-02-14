@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -92,7 +93,7 @@ func (c *VirtualEnvironmentClient) Authenticate(reset bool) error {
 // AuthenticateRequest adds authentication data to a new request.
 func (c *VirtualEnvironmentClient) AuthenticateRequest(req *http.Request) error {
 	if c.Token != nil {
-		req.Header.Add("Authorization", *c.Token)
+		req.Header.Add("Authorization", "PVEAPIToken="+*c.Token)
 	} else {
 		err := c.Authenticate(false)
 
@@ -111,4 +112,15 @@ func (c *VirtualEnvironmentClient) AuthenticateRequest(req *http.Request) error 
 	}
 
 	return nil
+}
+
+// IsDefaultRootAccount determines if a username or token matches the default root account.
+func (c *VirtualEnvironmentClient) IsDefaultRootAccount() bool {
+	if c.Token != nil && strings.HasPrefix(*c.Token, DefaultRootAccount+"!") {
+		return true
+	} else if c.Username != nil && *c.Username == DefaultRootAccount {
+		return true
+	}
+
+	return false
 }
