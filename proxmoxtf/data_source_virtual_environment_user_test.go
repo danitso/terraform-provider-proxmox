@@ -64,4 +64,20 @@ func TestDataSourceVirtualEnvironmentUserSchema(t *testing.T) {
 		mkDataSourceVirtualEnvironmentUserACLPropagate: schema.TypeBool,
 		mkDataSourceVirtualEnvironmentUserACLRoleID:    schema.TypeString,
 	})
+
+	tokensSchema := testNestedSchemaExistence(t, s, mkDataSourceVirtualEnvironmentUserTokens)
+
+	testComputedAttributes(t, tokensSchema, []string{
+		mkDataSourceVirtualEnvironmentUserTokensComment,
+		mkDataSourceVirtualEnvironmentUserTokensExpirationDate,
+		mkDataSourceVirtualEnvironmentUserTokensID,
+		mkDataSourceVirtualEnvironmentUserTokensPrivilegeSeparation,
+	})
+
+	testValueTypes(t, tokensSchema, map[string]schema.ValueType{
+		mkDataSourceVirtualEnvironmentUserTokensComment:             schema.TypeString,
+		mkDataSourceVirtualEnvironmentUserTokensExpirationDate:      schema.TypeString,
+		mkDataSourceVirtualEnvironmentUserTokensID:                  schema.TypeString,
+		mkDataSourceVirtualEnvironmentUserTokensPrivilegeSeparation: schema.TypeBool,
+	})
 }

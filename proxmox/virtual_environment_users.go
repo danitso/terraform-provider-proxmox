@@ -58,9 +58,17 @@ func (c *VirtualEnvironmentClient) GetUser(id string) (*VirtualEnvironmentUserGe
 }
 
 // ListUsers retrieves a list of users.
-func (c *VirtualEnvironmentClient) ListUsers() ([]*VirtualEnvironmentUserListResponseData, error) {
+func (c *VirtualEnvironmentClient) ListUsers(enabled, full bool) ([]*VirtualEnvironmentUserListResponseData, error) {
+	cbEnabled := CustomBool(enabled)
+	cbFull := CustomBool(full)
+
+	d := VirtualEnvironmentUserListRequestBody{
+		Enabled: &cbEnabled,
+		Full:    &cbFull,
+	}
+
 	resBody := &VirtualEnvironmentUserListResponseBody{}
-	err := c.DoRequest(hmGET, "access/users", nil, resBody)
+	err := c.DoRequest(hmGET, "access/users", d, resBody)
 
 	if err != nil {
 		return nil, err

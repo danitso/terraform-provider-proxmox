@@ -19,7 +19,6 @@ resource "proxmox_virtual_environment_cluster_ipset" "example" {
   }
 }
 
-output "resource_proxmox_virtual_environment_cluster_ipset" {
-  value = proxmox_virtual_environment_cluster_ipset.example.name
+output "resource_proxmox_virtual_environment_cluster_ipset_example" {
+  value = proxmox_virtual_environment_cluster_ipset.example
 }
-

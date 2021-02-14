@@ -2,7 +2,14 @@
 
 ENHANCEMENTS:
 
+* data-source/user: Add `tokens` attribute
+* data-source/users: Add `tokens` attribute
 * provider/configuration: Add `virtual_environment.token` argument for API token support
+* resource/user: Add `tokens` attribute
+
+BUG FIXES:
+
+* data-source/users: Fix empty `groups` attribute
 
 ## v0.4.2
 

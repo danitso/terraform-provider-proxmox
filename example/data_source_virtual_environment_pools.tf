@@ -3,7 +3,5 @@ data "proxmox_virtual_environment_pools" "example" {
 }
 
 output "data_proxmox_virtual_environment_pools_example" {
-  value = {
-    pool_ids = data.proxmox_virtual_environment_pools.example.pool_ids
-  }
+  value = data.proxmox_virtual_environment_pools.example
 }

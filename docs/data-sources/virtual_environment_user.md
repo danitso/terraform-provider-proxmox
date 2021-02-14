@@ -37,3 +37,8 @@ data "proxmox_virtual_environment_user" "operations_user" {
 * `groups` - The user's groups.
 * `keys` - The user's keys.
 * `last_name` - The user's last name.
+* `tokens` - The user's API tokens.
+    * `comment` - The token's comment.
+    * `expiration_date` - The token's expiration date.
+    * `id` - The token's identifier.
+    * `privilege_separation` - Whether the privileges for the token differs from the account privileges.
