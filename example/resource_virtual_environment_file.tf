@@ -31,6 +31,10 @@ users:
   }
 }
 
+output "resource_proxmox_virtual_environment_file_cloud_config" {
+  value = proxmox_virtual_environment_file.cloud_config
+}
+
 #===============================================================================
 # Ubuntu Cloud Image
 #===============================================================================
@@ -45,40 +49,8 @@ resource "proxmox_virtual_environment_file" "ubuntu_cloud_image" {
   }
 }
 
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_content_type" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.content_type
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_datastore_id" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.datastore_id
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_file_modification_date" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.file_modification_date
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_file_name" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.file_name
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_file_size" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.file_size
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_file_tag" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.file_tag
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_id" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.id
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_node_name" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.node_name
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image_source_file" {
-  value = proxmox_virtual_environment_file.ubuntu_cloud_image.source_file
+output "resource_proxmox_virtual_environment_file_ubuntu_cloud_image" {
+  value = proxmox_virtual_environment_file.ubuntu_cloud_image
 }
 
 #===============================================================================
@@ -95,38 +67,6 @@ resource "proxmox_virtual_environment_file" "ubuntu_container_template" {
   }
 }
 
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_content_type" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.content_type
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_datastore_id" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.datastore_id
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_file_modification_date" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.file_modification_date
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_file_name" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.file_name
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_file_size" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.file_size
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_file_tag" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.file_tag
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_id" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.id
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_node_name" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.node_name
-}
-
-output "resource_proxmox_virtual_environment_file_ubuntu_container_template_source_file" {
-  value = proxmox_virtual_environment_file.ubuntu_container_template.source_file
+output "resource_proxmox_virtual_environment_file_ubuntu_container_template" {
+  value = proxmox_virtual_environment_file.ubuntu_container_template
 }

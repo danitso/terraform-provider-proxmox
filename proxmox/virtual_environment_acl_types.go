@@ -25,5 +25,6 @@ type VirtualEnvironmentACLUpdateRequestBody struct {
 	Path      string      `json:"path" url:"path"`
 	Propagate *CustomBool `json:"propagate,omitempty" url:"propagate,omitempty,int"`
 	Roles     []string    `json:"roles" url:"roles,comma"`
+	Tokens    []string    `json:"tokens,omitempty" url:"tokens,omitempty,comma"`
 	Users     []string    `json:"users,omitempty" url:"users,omitempty,comma"`
 }

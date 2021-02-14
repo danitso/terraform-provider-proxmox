@@ -56,9 +56,9 @@ func (c *VirtualEnvironmentClient) ListRoles() ([]*VirtualEnvironmentRoleListRes
 		return resBody.Data[i].ID < resBody.Data[j].ID
 	})
 
-	for i := range resBody.Data {
-		if resBody.Data[i].Privileges != nil {
-			sort.Strings(*resBody.Data[i].Privileges)
+	for _, v := range resBody.Data {
+		if v.Privileges != nil {
+			sort.Strings(*v.Privileges)
 		}
 	}
 

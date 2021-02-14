@@ -8,18 +8,6 @@ resource "proxmox_virtual_environment_group" "example" {
   group_id = "terraform-provider-proxmox-example"
 }
 
-output "resource_proxmox_virtual_environment_group_example_acl" {
-  value = proxmox_virtual_environment_group.example.acl
-}
-
-output "resource_proxmox_virtual_environment_group_example_comment" {
-  value = proxmox_virtual_environment_group.example.comment
-}
-
-output "resource_proxmox_virtual_environment_group_example_id" {
-  value = proxmox_virtual_environment_group.example.id
-}
-
-output "resource_proxmox_virtual_environment_group_example_members" {
-  value = proxmox_virtual_environment_group.example.members
+output "resource_proxmox_virtual_environment_group_example" {
+  value = proxmox_virtual_environment_group.example
 }

@@ -2,7 +2,7 @@
 layout: page
 title: proxmox_virtual_environment_user
 permalink: /resources/virtual_environment_user
-nav_order: 12
+nav_order: 13
 parent: Resources
 subcategory: Virtual Environment
 ---
@@ -54,4 +54,8 @@ resource "proxmox_virtual_environment_role" "operations_monitoring" {
 
 ## Attribute Reference
 
-There are no additional attributes available for this resource.
+* `tokens` - The user's API tokens.
+    * `comment` - The token's comment.
+    * `expiration_date` - The token's expiration date.
+    * `id` - The token's identifier.
+    * `privilege_separation` - Whether the privileges for the token differs from the account privileges.

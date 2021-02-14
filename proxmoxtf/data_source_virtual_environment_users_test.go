@@ -32,6 +32,7 @@ func TestDataSourceVirtualEnvironmentUsersSchema(t *testing.T) {
 		mkDataSourceVirtualEnvironmentUsersGroups,
 		mkDataSourceVirtualEnvironmentUsersKeys,
 		mkDataSourceVirtualEnvironmentUsersLastNames,
+		mkDataSourceVirtualEnvironmentUsersTokens,
 		mkDataSourceVirtualEnvironmentUsersUserIDs,
 	})
 
@@ -44,6 +45,23 @@ func TestDataSourceVirtualEnvironmentUsersSchema(t *testing.T) {
 		mkDataSourceVirtualEnvironmentUsersGroups:          schema.TypeList,
 		mkDataSourceVirtualEnvironmentUsersKeys:            schema.TypeList,
 		mkDataSourceVirtualEnvironmentUsersLastNames:       schema.TypeList,
+		mkDataSourceVirtualEnvironmentUsersTokens:          schema.TypeList,
 		mkDataSourceVirtualEnvironmentUsersUserIDs:         schema.TypeList,
+	})
+
+	tokensSchema := testNestedSchemaExistence(t, s, mkDataSourceVirtualEnvironmentUsersTokens)
+
+	testComputedAttributes(t, tokensSchema, []string{
+		mkDataSourceVirtualEnvironmentUsersTokensComment,
+		mkDataSourceVirtualEnvironmentUsersTokensExpirationDate,
+		mkDataSourceVirtualEnvironmentUsersTokensID,
+		mkDataSourceVirtualEnvironmentUsersTokensPrivilegeSeparation,
+	})
+
+	testValueTypes(t, tokensSchema, map[string]schema.ValueType{
+		mkDataSourceVirtualEnvironmentUsersTokensComment:             schema.TypeString,
+		mkDataSourceVirtualEnvironmentUsersTokensExpirationDate:      schema.TypeString,
+		mkDataSourceVirtualEnvironmentUsersTokensID:                  schema.TypeString,
+		mkDataSourceVirtualEnvironmentUsersTokensPrivilegeSeparation: schema.TypeBool,
 	})
 }

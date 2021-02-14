@@ -11,15 +11,20 @@ import (
 )
 
 const (
-	mkDataSourceVirtualEnvironmentUsersComments        = "comments"
-	mkDataSourceVirtualEnvironmentUsersEmails          = "emails"
-	mkDataSourceVirtualEnvironmentUsersEnabled         = "enabled"
-	mkDataSourceVirtualEnvironmentUsersExpirationDates = "expiration_dates"
-	mkDataSourceVirtualEnvironmentUsersFirstNames      = "first_names"
-	mkDataSourceVirtualEnvironmentUsersGroups          = "groups"
-	mkDataSourceVirtualEnvironmentUsersKeys            = "keys"
-	mkDataSourceVirtualEnvironmentUsersLastNames       = "last_names"
-	mkDataSourceVirtualEnvironmentUsersUserIDs         = "user_ids"
+	mkDataSourceVirtualEnvironmentUsersComments                  = "comments"
+	mkDataSourceVirtualEnvironmentUsersEmails                    = "emails"
+	mkDataSourceVirtualEnvironmentUsersEnabled                   = "enabled"
+	mkDataSourceVirtualEnvironmentUsersExpirationDates           = "expiration_dates"
+	mkDataSourceVirtualEnvironmentUsersFirstNames                = "first_names"
+	mkDataSourceVirtualEnvironmentUsersGroups                    = "groups"
+	mkDataSourceVirtualEnvironmentUsersKeys                      = "keys"
+	mkDataSourceVirtualEnvironmentUsersLastNames                 = "last_names"
+	mkDataSourceVirtualEnvironmentUsersTokens                    = "tokens"
+	mkDataSourceVirtualEnvironmentUsersTokensComment             = "comment"
+	mkDataSourceVirtualEnvironmentUsersTokensExpirationDate      = "expiration_date"
+	mkDataSourceVirtualEnvironmentUsersTokensID                  = "id"
+	mkDataSourceVirtualEnvironmentUsersTokensPrivilegeSeparation = "privilege_separation"
+	mkDataSourceVirtualEnvironmentUsersUserIDs                   = "user_ids"
 )
 
 func dataSourceVirtualEnvironmentUsers() *schema.Resource {
@@ -76,6 +81,38 @@ func dataSourceVirtualEnvironmentUsers() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			mkDataSourceVirtualEnvironmentUsersTokens: {
+				Type:        schema.TypeList,
+				Description: "The users' API tokens",
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeSet,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							mkDataSourceVirtualEnvironmentUsersTokensComment: {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: "The token's comment",
+							},
+							mkDataSourceVirtualEnvironmentUsersTokensExpirationDate: {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: "The token's expiration date",
+							},
+							mkDataSourceVirtualEnvironmentUsersTokensID: {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: "The token's identifier",
+							},
+							mkDataSourceVirtualEnvironmentUsersTokensPrivilegeSeparation: {
+								Type:        schema.TypeBool,
+								Computed:    true,
+								Description: "Whether the privileges for the token differs from the account privileges",
+							},
+						},
+					},
+				},
+			},
 			mkDataSourceVirtualEnvironmentUsersUserIDs: {
 				Type:        schema.TypeList,
 				Description: "The user ids",
@@ -95,7 +132,7 @@ func dataSourceVirtualEnvironmentUsersRead(d *schema.ResourceData, m interface{}
 		return err
 	}
 
-	list, err := veClient.ListUsers()
+	list, err := veClient.ListUsers(true, true)
 
 	if err != nil {
 		return err
@@ -109,6 +146,7 @@ func dataSourceVirtualEnvironmentUsersRead(d *schema.ResourceData, m interface{}
 	groups := make([]interface{}, len(list))
 	keys := make([]interface{}, len(list))
 	lastNames := make([]interface{}, len(list))
+	tokens := make([]interface{}, len(list))
 	userIDs := make([]interface{}, len(list))
 
 	for i, v := range list {
@@ -166,6 +204,50 @@ func dataSourceVirtualEnvironmentUsersRead(d *schema.ResourceData, m interface{}
 			lastNames[i] = ""
 		}
 
+		if v.Tokens != nil {
+			userTokens := make([]interface{}, len(*v.Tokens))
+
+			for ti, tv := range *v.Tokens {
+				userToken := map[string]interface{}{}
+
+				if tv.Comment != nil {
+					userToken[mkDataSourceVirtualEnvironmentUsersTokensComment] = *tv.Comment
+				} else {
+					userToken[mkDataSourceVirtualEnvironmentUsersTokensComment] = ""
+				}
+
+				if tv.ExpirationDate != nil {
+					t := time.Time(*tv.ExpirationDate)
+
+					if t.Unix() > 0 {
+						userToken[mkDataSourceVirtualEnvironmentUsersTokensExpirationDate] = t.UTC().Format(time.RFC3339)
+					} else {
+						userToken[mkDataSourceVirtualEnvironmentUsersTokensExpirationDate] = time.Unix(0, 0).UTC().Format(time.RFC3339)
+					}
+				} else {
+					userToken[mkDataSourceVirtualEnvironmentUsersTokensExpirationDate] = time.Unix(0, 0).UTC().Format(time.RFC3339)
+				}
+
+				if tv.ID != nil {
+					userToken[mkDataSourceVirtualEnvironmentUsersTokensID] = *tv.ID
+				} else {
+					userToken[mkDataSourceVirtualEnvironmentUsersTokensID] = ""
+				}
+
+				if tv.PrivilegeSeperation != nil {
+					userToken[mkDataSourceVirtualEnvironmentUsersTokensPrivilegeSeparation] = *tv.PrivilegeSeperation
+				} else {
+					userToken[mkDataSourceVirtualEnvironmentUsersTokensPrivilegeSeparation] = true
+				}
+
+				userTokens[ti] = userToken
+			}
+
+			tokens[i] = userTokens
+		} else {
+			tokens[i] = []interface{}{}
+		}
+
 		userIDs[i] = v.ID
 	}
 
@@ -179,6 +261,7 @@ func dataSourceVirtualEnvironmentUsersRead(d *schema.ResourceData, m interface{}
 	d.Set(mkDataSourceVirtualEnvironmentUsersGroups, groups)
 	d.Set(mkDataSourceVirtualEnvironmentUsersKeys, keys)
 	d.Set(mkDataSourceVirtualEnvironmentUsersLastNames, lastNames)
+	d.Set(mkDataSourceVirtualEnvironmentUsersTokens, tokens)
 	d.Set(mkDataSourceVirtualEnvironmentUsersUserIDs, userIDs)
 
 	return nil

@@ -31,4 +31,9 @@ There are no arguments available for this data source.
 * `groups` - The users' groups.
 * `keys` - The users' keys.
 * `last_names` - The users' last names.
+* `tokens` - The users' API tokens.
+    * `comment` - The token's comment.
+    * `expiration_date` - The token's expiration date.
+    * `id` - The token's identifier.
+    * `privilege_separation` - Whether the privileges for the token differs from the account privileges.
 * `user_ids` - The user identifiers.
