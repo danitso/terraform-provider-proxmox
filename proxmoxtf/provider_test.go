@@ -40,6 +40,7 @@ func TestProviderSchema(t *testing.T) {
 		mkProviderVirtualEnvironmentInsecure,
 		mkProviderVirtualEnvironmentOTP,
 		mkProviderVirtualEnvironmentPassword,
+		mkProviderVirtualEnvironmentToken,
 		mkProviderVirtualEnvironmentUsername,
 	})
 
@@ -48,6 +49,7 @@ func TestProviderSchema(t *testing.T) {
 		mkProviderVirtualEnvironmentInsecure: schema.TypeBool,
 		mkProviderVirtualEnvironmentOTP:      schema.TypeString,
 		mkProviderVirtualEnvironmentPassword: schema.TypeString,
+		mkProviderVirtualEnvironmentToken:    schema.TypeString,
 		mkProviderVirtualEnvironmentUsername: schema.TypeString,
 	})
 }
