@@ -14,24 +14,16 @@ Manages a user token.
 ## Example Usage
 
 ```
-resource "proxmox_virtual_environment_user" "operations_automation" {
+resource "proxmox_virtual_environment_user_token" "example" {
   acl {
-    path      = "/vms/1234"
+    path      = "/vms/${proxmox_virtual_environment_vm.example.id}"
     propagate = true
-    role_id   = "${proxmox_virtual_environment_role.operations_monitoring.role_id}"
+    role_id   = "PVEVMAdmin"
   }
 
   comment  = "Managed by Terraform"
-  password = "a-strong-password"
-  user_id  = "operations-automation@pve"
-}
-
-resource "proxmox_virtual_environment_role" "operations_monitoring" {
-  role_id = "operations-monitoring"
-
-  privileges = [
-    "VM.Monitor",
-  ]
+  name     = "automation"
+  user_id  = proxmox_virtual_environment_user.example.id
 }
 ```
 
