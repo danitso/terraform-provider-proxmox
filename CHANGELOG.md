@@ -15,6 +15,12 @@ BUG FIXES:
 
 * data-source/users: Fix empty `groups` attribute
 
+## v0.4.3
+
+BUG FIXES:
+
+* resource/virtual_environment_container: Fix IP initialization issue
+
 ## v0.4.2
 
 BUG FIXES:
