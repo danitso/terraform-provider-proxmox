@@ -105,12 +105,13 @@ type CustomNUMADevices []CustomNUMADevice
 
 // CustomPCIDevice handles QEMU host PCI device mapping parameters.
 type CustomPCIDevice struct {
-	DeviceIDs  []string    `json:"host" url:"host,semicolon"`
-	DevicePath *string     `json:"mdev,omitempty" url:"mdev,omitempty"`
-	PCIExpress *CustomBool `json:"pcie,omitempty" url:"pcie,omitempty,int"`
-	ROMBAR     *CustomBool `json:"rombar,omitempty" url:"rombar,omitempty,int"`
-	ROMFile    *string     `json:"romfile,omitempty" url:"romfile,omitempty"`
-	XVGA       *CustomBool `json:"x-vga,omitempty" url:"x-vga,omitempty,int"`
+	DeviceIDs      []string    `json:"host" url:"host,semicolon"`
+	LegacyIGD      *CustomBool `json:"legacy-igd,omitempty" url:"legacy-igd,omitempty,int"`
+	MediatedDevice *string     `json:"mdev,omitempty" url:"mdev,omitempty"`
+	PCIExpress     *CustomBool `json:"pcie,omitempty" url:"pcie,omitempty,int"`
+	ROMBAR         *CustomBool `json:"rombar,omitempty" url:"rombar,omitempty,int"`
+	ROMFile        *string     `json:"romfile,omitempty" url:"romfile,omitempty"`
+	XVGA           *CustomBool `json:"x-vga,omitempty" url:"x-vga,omitempty,int"`
 }
 
 // CustomPCIDevices handles QEMU host PCI device mapping parameters.
@@ -842,8 +843,16 @@ func (r CustomPCIDevice) EncodeValues(key string, v *url.Values) error {
 		fmt.Sprintf("host=%s", strings.Join(r.DeviceIDs, ";")),
 	}
 
-	if r.DevicePath != nil {
-		values = append(values, fmt.Sprintf("mdev=%s", *r.DevicePath))
+	if r.LegacyIGD != nil {
+		if *r.LegacyIGD {
+			values = append(values, "legacy-igd=1")
+		} else {
+			values = append(values, "legacy-igd=0")
+		}
+	}
+
+	if r.MediatedDevice != nil {
+		values = append(values, fmt.Sprintf("mdev=%s", *r.MediatedDevice))
 	}
 
 	if r.PCIExpress != nil {

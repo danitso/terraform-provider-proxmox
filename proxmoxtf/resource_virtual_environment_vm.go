@@ -73,6 +73,12 @@ const (
 	dvResourceVirtualEnvironmentVMNetworkDeviceRateLimit            = 0
 	dvResourceVirtualEnvironmentVMNetworkDeviceVLANID               = 0
 	dvResourceVirtualEnvironmentVMOperatingSystemType               = "other"
+	dvResourceVirtualEnvironmentVMPCIDeviceLegacyIGD                = false
+	dvResourceVirtualEnvironmentVMPCIDeviceMediatedDevice           = ""
+	dvResourceVirtualEnvironmentVMPCIDevicePCIExpress               = false
+	dvResourceVirtualEnvironmentVMPCIDevicePrimaryGPU               = false
+	dvResourceVirtualEnvironmentVMPCIDeviceROMFile                  = ""
+	dvResourceVirtualEnvironmentVMPCIDeviceROMVisible               = "rom_visible"
 	dvResourceVirtualEnvironmentVMPoolID                            = ""
 	dvResourceVirtualEnvironmentVMSerialDeviceDevice                = "socket"
 	dvResourceVirtualEnvironmentVMStarted                           = true
@@ -91,6 +97,7 @@ const (
 
 	maxResourceVirtualEnvironmentVMAudioDevices   = 1
 	maxResourceVirtualEnvironmentVMNetworkDevices = 8
+	maxResourceVirtualEnvironmentVMPCIDevices     = 8
 	maxResourceVirtualEnvironmentVMSerialDevices  = 4
 
 	mkResourceVirtualEnvironmentVMRebootAfterCreation               = "reboot"
@@ -173,6 +180,14 @@ const (
 	mkResourceVirtualEnvironmentVMNodeName                          = "node_name"
 	mkResourceVirtualEnvironmentVMOperatingSystem                   = "operating_system"
 	mkResourceVirtualEnvironmentVMOperatingSystemType               = "type"
+	mkResourceVirtualEnvironmentVMPCIDevice                         = "pci_device"
+	mkResourceVirtualEnvironmentVMPCIDeviceDeviceIDs                = "device_ids"
+	mkResourceVirtualEnvironmentVMPCIDeviceLegacyIGD                = "legacy_igd"
+	mkResourceVirtualEnvironmentVMPCIDeviceMediatedDevice           = "mediated_device"
+	mkResourceVirtualEnvironmentVMPCIDevicePCIExpress               = "pci_express"
+	mkResourceVirtualEnvironmentVMPCIDevicePrimaryGPU               = "primary_gpu"
+	mkResourceVirtualEnvironmentVMPCIDeviceROMFile                  = "rom_file"
+	mkResourceVirtualEnvironmentVMPCIDeviceROMVisible               = "rom_visible"
 	mkResourceVirtualEnvironmentVMPoolID                            = "pool_id"
 	mkResourceVirtualEnvironmentVMSerialDevice                      = "serial_device"
 	mkResourceVirtualEnvironmentVMSerialDeviceDevice                = "device"
@@ -901,6 +916,62 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 					},
 				},
 				MaxItems: 1,
+				MinItems: 0,
+			},
+			mkResourceVirtualEnvironmentVMPCIDevice: {
+				Type:        schema.TypeList,
+				Description: "The PCI devices to pass through to the guest",
+				Optional:    true,
+				DefaultFunc: func() (interface{}, error) {
+					return []interface{}{}, nil
+				},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						mkResourceVirtualEnvironmentVMPCIDeviceDeviceIDs: {
+							Type:        schema.TypeList,
+							Description: "The device identifiers",
+							Required:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						mkResourceVirtualEnvironmentVMPCIDeviceLegacyIGD: {
+							Type:        schema.TypeBool,
+							Description: "Whether to treat the device as a legacy Integrated Graphics Device",
+							Optional:    true,
+							Default:     dvResourceVirtualEnvironmentVMPCIDeviceLegacyIGD,
+						},
+						mkResourceVirtualEnvironmentVMPCIDeviceMediatedDevice: {
+							Type:        schema.TypeString,
+							Description: "The mediated device property",
+							Optional:    true,
+							Default:     dvResourceVirtualEnvironmentVMPCIDeviceMediatedDevice,
+						},
+						mkResourceVirtualEnvironmentVMPCIDevicePCIExpress: {
+							Type:        schema.TypeBool,
+							Description: "Whether to expose the device on a PCI Express port",
+							Optional:    true,
+							Default:     dvResourceVirtualEnvironmentVMPCIDevicePCIExpress,
+						},
+						mkResourceVirtualEnvironmentVMPCIDevicePrimaryGPU: {
+							Type:        schema.TypeBool,
+							Description: "Whether to mark the device as the primary GPU",
+							Optional:    true,
+							Default:     dvResourceVirtualEnvironmentVMPCIDevicePrimaryGPU,
+						},
+						mkResourceVirtualEnvironmentVMPCIDeviceROMFile: {
+							Type:        schema.TypeString,
+							Description: "The path to a ROM file relative to /usr/share/kvm/",
+							Optional:    true,
+							Default:     dvResourceVirtualEnvironmentVMPCIDeviceROMFile,
+						},
+						mkResourceVirtualEnvironmentVMPCIDeviceROMVisible: {
+							Type:        schema.TypeBool,
+							Description: "Whether to make the ROM visible for the guest",
+							Optional:    true,
+							Default:     dvResourceVirtualEnvironmentVMPCIDeviceROMVisible,
+						},
+					},
+				},
+				MaxItems: maxResourceVirtualEnvironmentVMPCIDevices,
 				MinItems: 0,
 			},
 			mkResourceVirtualEnvironmentVMPoolID: {
