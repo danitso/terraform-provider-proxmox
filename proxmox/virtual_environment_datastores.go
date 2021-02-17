@@ -66,6 +66,12 @@ func (c *VirtualEnvironmentClient) ListDatastores(nodeName string, d *VirtualEnv
 		return resBody.Data[i].ID < resBody.Data[j].ID
 	})
 
+	for _, v := range resBody.Data {
+		if v.ContentTypes != nil {
+			sort.Strings(*v.ContentTypes)
+		}
+	}
+
 	return resBody.Data, nil
 }
 

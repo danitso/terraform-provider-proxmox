@@ -11,19 +11,24 @@ import (
 )
 
 const (
-	mkDataSourceVirtualEnvironmentUserACL            = "acl"
-	mkDataSourceVirtualEnvironmentUserACLPath        = "path"
-	mkDataSourceVirtualEnvironmentUserACLPropagate   = "propagate"
-	mkDataSourceVirtualEnvironmentUserACLRoleID      = "role_id"
-	mkDataSourceVirtualEnvironmentUserComment        = "comment"
-	mkDataSourceVirtualEnvironmentUserEmail          = "email"
-	mkDataSourceVirtualEnvironmentUserEnabled        = "enabled"
-	mkDataSourceVirtualEnvironmentUserExpirationDate = "expiration_date"
-	mkDataSourceVirtualEnvironmentUserFirstName      = "first_name"
-	mkDataSourceVirtualEnvironmentUserGroups         = "groups"
-	mkDataSourceVirtualEnvironmentUserKeys           = "keys"
-	mkDataSourceVirtualEnvironmentUserLastName       = "last_name"
-	mkDataSourceVirtualEnvironmentUserUserID         = "user_id"
+	mkDataSourceVirtualEnvironmentUserACL                       = "acl"
+	mkDataSourceVirtualEnvironmentUserACLPath                   = "path"
+	mkDataSourceVirtualEnvironmentUserACLPropagate              = "propagate"
+	mkDataSourceVirtualEnvironmentUserACLRoleID                 = "role_id"
+	mkDataSourceVirtualEnvironmentUserComment                   = "comment"
+	mkDataSourceVirtualEnvironmentUserEmail                     = "email"
+	mkDataSourceVirtualEnvironmentUserEnabled                   = "enabled"
+	mkDataSourceVirtualEnvironmentUserExpirationDate            = "expiration_date"
+	mkDataSourceVirtualEnvironmentUserFirstName                 = "first_name"
+	mkDataSourceVirtualEnvironmentUserGroups                    = "groups"
+	mkDataSourceVirtualEnvironmentUserKeys                      = "keys"
+	mkDataSourceVirtualEnvironmentUserLastName                  = "last_name"
+	mkDataSourceVirtualEnvironmentUserTokens                    = "tokens"
+	mkDataSourceVirtualEnvironmentUserTokensComment             = "comment"
+	mkDataSourceVirtualEnvironmentUserTokensExpirationDate      = "expiration_date"
+	mkDataSourceVirtualEnvironmentUserTokensID                  = "id"
+	mkDataSourceVirtualEnvironmentUserTokensPrivilegeSeparation = "privilege_separation"
+	mkDataSourceVirtualEnvironmentUserUserID                    = "user_id"
 )
 
 func dataSourceVirtualEnvironmentUser() *schema.Resource {
@@ -93,6 +98,35 @@ func dataSourceVirtualEnvironmentUser() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The user's last name",
 				Computed:    true,
+			},
+			mkDataSourceVirtualEnvironmentUserTokens: {
+				Type:        schema.TypeSet,
+				Description: "The user's API tokens",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						mkDataSourceVirtualEnvironmentUserTokensComment: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The token's comment",
+						},
+						mkDataSourceVirtualEnvironmentUserTokensExpirationDate: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The token's expiration date",
+						},
+						mkDataSourceVirtualEnvironmentUserTokensID: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The token's identifier",
+						},
+						mkDataSourceVirtualEnvironmentUserTokensPrivilegeSeparation: {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Whether the privileges for the token differs from the account privileges",
+						},
+					},
+				},
 			},
 			mkDataSourceVirtualEnvironmentUserUserID: {
 				Type:        schema.TypeString,
@@ -201,6 +235,49 @@ func dataSourceVirtualEnvironmentUserRead(d *schema.ResourceData, m interface{})
 		d.Set(mkDataSourceVirtualEnvironmentUserLastName, v.LastName)
 	} else {
 		d.Set(mkDataSourceVirtualEnvironmentUserLastName, "")
+	}
+
+	if v.Tokens != nil {
+		tokens := make([]interface{}, len(*v.Tokens))
+		ti := 0
+
+		for tk, tv := range *v.Tokens {
+			token := map[string]interface{}{}
+
+			if tv.Comment != nil {
+				token[mkDataSourceVirtualEnvironmentUserTokensComment] = *tv.Comment
+			} else {
+				token[mkDataSourceVirtualEnvironmentUserTokensComment] = ""
+			}
+
+			if tv.ExpirationDate != nil {
+				t := time.Time(*tv.ExpirationDate)
+
+				if t.Unix() > 0 {
+					token[mkDataSourceVirtualEnvironmentUserTokensExpirationDate] = t.UTC().Format(time.RFC3339)
+				} else {
+					token[mkDataSourceVirtualEnvironmentUserTokensExpirationDate] = time.Unix(0, 0).UTC().Format(time.RFC3339)
+				}
+			} else {
+				token[mkDataSourceVirtualEnvironmentUserTokensExpirationDate] = time.Unix(0, 0).UTC().Format(time.RFC3339)
+			}
+
+			token[mkDataSourceVirtualEnvironmentUserTokensID] = tk
+
+			if tv.PrivilegeSeperation != nil {
+				token[mkDataSourceVirtualEnvironmentUserTokensPrivilegeSeparation] = *tv.PrivilegeSeperation
+			} else {
+				token[mkDataSourceVirtualEnvironmentUserTokensPrivilegeSeparation] = true
+			}
+
+			tokens[ti] = token
+
+			ti++
+		}
+
+		d.Set(mkDataSourceVirtualEnvironmentUserTokens, tokens)
+	} else {
+		d.Set(mkDataSourceVirtualEnvironmentUserTokens, []interface{}{})
 	}
 
 	return nil

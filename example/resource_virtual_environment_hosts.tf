@@ -11,18 +11,6 @@ resource "proxmox_virtual_environment_hosts" "example" {
   }
 }
 
-output "resource_proxmox_virtual_environment_hosts_example_addresses" {
-  value = proxmox_virtual_environment_hosts.example.addresses
-}
-
-output "resource_proxmox_virtual_environment_hosts_example_digest" {
-  value = proxmox_virtual_environment_hosts.example.digest
-}
-
-output "resource_proxmox_virtual_environment_hosts_example_entries" {
-  value = proxmox_virtual_environment_hosts.example.entries
-}
-
-output "resource_proxmox_virtual_environment_hosts_example_hostnames" {
-  value = proxmox_virtual_environment_hosts.example.hostnames
+output "resource_proxmox_virtual_environment_hosts_example" {
+  value = proxmox_virtual_environment_hosts.example
 }

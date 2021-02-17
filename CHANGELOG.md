@@ -1,9 +1,26 @@
 ## v0.5.0
 
+FEATURES:
+
+* **New Resource:** `proxmox_virtual_environment_user_token`
+
 ENHANCEMENTS:
 
+* data-source/virtual_environment_user: Add `tokens` attribute
+* data-source/virtual_environment_users: Add `tokens` attribute
 * provider/configuration: Add `virtual_environment.token` argument for API token support
+* resource/virtual_environment_user: Add `tokens` attribute
 * resource/virtual_environment_vm: Add `agent.prefixes` argument
+
+BUG FIXES:
+
+* data-source/virtual_environment_users: Fix empty `groups` attribute
+
+## v0.4.3
+
+BUG FIXES:
+
+* resource/virtual_environment_container: Fix IP initialization issue
 
 ## v0.4.2
 

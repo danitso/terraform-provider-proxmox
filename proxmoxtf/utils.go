@@ -511,15 +511,25 @@ func testComputedAttributes(t *testing.T, s *schema.Resource, keys []string) {
 }
 
 func testNestedSchemaExistence(t *testing.T, s *schema.Resource, key string) *schema.Resource {
-	schema, ok := s.Schema[key].Elem.(*schema.Resource)
+	schemaResource, ok := s.Schema[key].Elem.(*schema.Resource)
 
 	if !ok {
-		t.Fatalf("Error in Schema: Missing nested schema for \"%s\"", key)
+		schemaReference, ok := s.Schema[key].Elem.(*schema.Schema)
 
-		return nil
+		if !ok || schemaReference.Elem == nil {
+			t.Fatalf("Error in Schema: Missing nested schema for \"%s\"", key)
+			return nil
+		}
+
+		schemaResource, ok = schemaReference.Elem.(*schema.Resource)
+
+		if !ok || schemaResource == nil {
+			t.Fatalf("Error in Schema: Missing nested schema for \"%s\"", key)
+			return nil
+		}
 	}
 
-	return schema
+	return schemaResource
 }
 
 func testOptionalArguments(t *testing.T, s *schema.Resource, keys []string) {

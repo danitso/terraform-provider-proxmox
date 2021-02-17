@@ -6,7 +6,6 @@ package proxmoxtf
 
 import (
 	"fmt"
-	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -127,9 +126,7 @@ func dataSourceVirtualEnvironmentDatastoresRead(d *schema.ResourceData, m interf
 		}
 
 		if v.ContentTypes != nil {
-			contentTypeList := []string(*v.ContentTypes)
-			sort.Strings(contentTypeList)
-			contentTypes[i] = contentTypeList
+			contentTypes[i] = []string(*v.ContentTypes)
 		} else {
 			contentTypes[i] = []string{}
 		}

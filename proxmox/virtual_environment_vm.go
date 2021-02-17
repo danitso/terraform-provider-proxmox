@@ -236,15 +236,20 @@ func (c *VirtualEnvironmentClient) RebootVMAsync(nodeName string, vmID int, d *V
 // ResizeVMDisk resizes a virtual machine disk.
 func (c *VirtualEnvironmentClient) ResizeVMDisk(nodeName string, vmID int, d *VirtualEnvironmentVMResizeDiskRequestBody) error {
 	var err error
+
 	log.Printf("[DEBUG] RESIZE size: %s, disk: %s", d.Size, d.Disk)
+
 	for i := 0; i < 5; i++ {
 		err = c.DoRequest(hmPUT, fmt.Sprintf("nodes/%s/qemu/%d/resize", url.PathEscape(nodeName), vmID), d, nil)
+
 		if err == nil {
 			return nil
 		}
+
 		log.Printf("[DEBUG] resize disk failed, retry nr: %d", i)
 		time.Sleep(5 * time.Second)
 	}
+
 	return err
 }
 

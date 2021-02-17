@@ -36,6 +36,10 @@ resource "proxmox_virtual_environment_container" "example_template" {
   vm_id    = 2042
 }
 
+output "resource_proxmox_virtual_environment_container_example_template" {
+  value = proxmox_virtual_environment_container.example_template
+}
+
 resource "proxmox_virtual_environment_container" "example" {
   clone {
     vm_id = proxmox_virtual_environment_container.example_template.id
@@ -50,6 +54,6 @@ resource "proxmox_virtual_environment_container" "example" {
   vm_id     = 2043
 }
 
-output "resource_proxmox_virtual_environment_container_example_id" {
-  value = proxmox_virtual_environment_container.example.id
+output "resource_proxmox_virtual_environment_container_example" {
+  value = proxmox_virtual_environment_container.example
 }

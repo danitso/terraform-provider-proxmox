@@ -51,6 +51,10 @@ resource "proxmox_virtual_environment_vm" "example_template" {
   vm_id    = 2040
 }
 
+output "resource_proxmox_virtual_environment_vm_example_template" {
+  value = proxmox_virtual_environment_vm.example_template
+}
+
 resource "proxmox_virtual_environment_vm" "example" {
   name      = "terraform-provider-proxmox-example"
   node_name = data.proxmox_virtual_environment_nodes.example.names[0]
@@ -80,22 +84,6 @@ resource "proxmox_virtual_environment_vm" "example" {
   }
 }
 
-output "resource_proxmox_virtual_environment_vm_example_id" {
-  value = proxmox_virtual_environment_vm.example.id
-}
-
-output "resource_proxmox_virtual_environment_vm_example_ipv4_addresses" {
-  value = proxmox_virtual_environment_vm.example.ipv4_addresses
-}
-
-output "resource_proxmox_virtual_environment_vm_example_ipv6_addresses" {
-  value = proxmox_virtual_environment_vm.example.ipv6_addresses
-}
-
-output "resource_proxmox_virtual_environment_vm_example_mac_addresses" {
-  value = proxmox_virtual_environment_vm.example.mac_addresses
-}
-
-output "resource_proxmox_virtual_environment_vm_example_network_interface_names" {
-  value = proxmox_virtual_environment_vm.example.network_interface_names
+output "resource_proxmox_virtual_environment_vm_example" {
+  value = proxmox_virtual_environment_vm.example
 }

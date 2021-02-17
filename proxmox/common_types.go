@@ -51,14 +51,14 @@ func (r *CustomBool) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// MarshalJSON converts a boolean to a JSON value.
+// MarshalJSON converts a string slice to a JSON value.
 func (r *CustomCommaSeparatedList) MarshalJSON() ([]byte, error) {
 	s := strings.Join(*r, ",")
 
 	return json.Marshal(s)
 }
 
-// UnmarshalJSON converts a JSON value to a boolean.
+// UnmarshalJSON converts a JSON value to a string slice.
 func (r *CustomCommaSeparatedList) UnmarshalJSON(b []byte) error {
 	var s string
 
@@ -68,7 +68,13 @@ func (r *CustomCommaSeparatedList) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	*r = strings.Split(s, ",")
+	values := strings.Split(s, ",")
+
+	if len(values) == 1 && values[0] == "" {
+		*r = []string{}
+	} else {
+		*r = values
+	}
 
 	return nil
 }
@@ -92,14 +98,14 @@ func (r *CustomInt) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// MarshalJSON converts a boolean to a JSON value.
+// MarshalJSON converts a string slice to a JSON value.
 func (r *CustomLineBreakSeparatedList) MarshalJSON() ([]byte, error) {
 	s := strings.Join(*r, "\n")
 
 	return json.Marshal(s)
 }
 
-// UnmarshalJSON converts a JSON value to a boolean.
+// UnmarshalJSON converts a JSON value to a string slice.
 func (r *CustomLineBreakSeparatedList) UnmarshalJSON(b []byte) error {
 	var s string
 
@@ -109,12 +115,18 @@ func (r *CustomLineBreakSeparatedList) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	*r = strings.Split(s, "\n")
+	values := strings.Split(s, "\n")
+
+	if len(values) == 1 && values[0] == "" {
+		*r = []string{}
+	} else {
+		*r = values
+	}
 
 	return nil
 }
 
-// MarshalJSON converts a boolean to a JSON value.
+// MarshalJSON converts a string slice to a JSON value.
 func (r *CustomPrivileges) MarshalJSON() ([]byte, error) {
 	var privileges map[string]CustomBool
 
@@ -125,7 +137,7 @@ func (r *CustomPrivileges) MarshalJSON() ([]byte, error) {
 	return json.Marshal(privileges)
 }
 
-// UnmarshalJSON converts a JSON value to a boolean.
+// UnmarshalJSON converts a JSON value to a string slice.
 func (r *CustomPrivileges) UnmarshalJSON(b []byte) error {
 	var privileges interface{}
 
@@ -157,7 +169,7 @@ func (r *CustomPrivileges) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// MarshalJSON converts a boolean to a JSON value.
+// MarshalJSON converts a time.Time struct to a JSON value.
 func (r CustomTimestamp) MarshalJSON() ([]byte, error) {
 	var timestamp time.Time
 
@@ -167,7 +179,7 @@ func (r CustomTimestamp) MarshalJSON() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-// UnmarshalJSON converts a JSON value to a boolean.
+// UnmarshalJSON converts a JSON value to a time.Time struct.
 func (r *CustomTimestamp) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	i, err := strconv.ParseInt(s, 10, 64)
