@@ -13,7 +13,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 
-* data-source/users: Fix empty `groups` attribute
+* data-source/virtual_environment_users: Fix empty `groups` attribute
 
 ## v0.4.3
 
