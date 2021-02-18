@@ -270,7 +270,7 @@ output "ubuntu_vm_public_key" {
     * `pci_express` - (Optional) Whether to expose the device on a PCI Express port (defaults to `false`).
     * `primary_gpu` - (Optional) Whether to mark the device as the primary GPU (defaults to `false`).
     * `rom_file` - (Optional) The path to a ROM file relative to `/usr/share/kvm/`.
-    * `rom_visible` - (Optional) Whether to make the ROM visible for the guest (defaults to `false`).
+    * `rom_visible` - (Optional) Whether to make the ROM visible for the guest (defaults to `true`).
 * `pool_id` - (Optional) The identifier for a pool to assign the virtual machine to.
 * `reboot` - (Optional) Reboot the VM after initial creation. (defaults to `false`)
 * `serial_device` - (Optional) A serial device (multiple blocks supported).

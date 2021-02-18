@@ -404,7 +404,14 @@ type VirtualEnvironmentVMGetResponseData struct {
 	NUMAEnabled          *CustomBool                   `json:"numa,omitempty"`
 	OSType               *string                       `json:"ostype,omitempty"`
 	Overwrite            *CustomBool                   `json:"force,omitempty"`
-	PCIDevices           *CustomPCIDevices             `json:"hostpci,omitempty"`
+	PCIDevice0           *CustomPCIDevice              `json:"hostpci0,omitempty"`
+	PCIDevice1           *CustomPCIDevice              `json:"hostpci1,omitempty"`
+	PCIDevice2           *CustomPCIDevice              `json:"hostpci2,omitempty"`
+	PCIDevice3           *CustomPCIDevice              `json:"hostpci3,omitempty"`
+	PCIDevice4           *CustomPCIDevice              `json:"hostpci4,omitempty"`
+	PCIDevice5           *CustomPCIDevice              `json:"hostpci5,omitempty"`
+	PCIDevice6           *CustomPCIDevice              `json:"hostpci6,omitempty"`
+	PCIDevice7           *CustomPCIDevice              `json:"hostpci7,omitempty"`
 	PoolID               *string                       `json:"pool,omitempty" url:"pool,omitempty"`
 	Revert               *string                       `json:"revert,omitempty"`
 	SATADevice0          *CustomStorageDevice          `json:"sata0,omitempty"`
@@ -1153,15 +1160,19 @@ func (r CustomVirtualIODevices) EncodeValues(key string, v *url.Values) error {
 
 // EncodeValues converts a CustomWatchdogDevice struct to a URL vlaue.
 func (r CustomWatchdogDevice) EncodeValues(key string, v *url.Values) error {
-	values := []string{
-		fmt.Sprintf("model=%s", r.Model),
+	values := []string{}
+
+	if r.Model != nil {
+		values = append(values, fmt.Sprintf("model=%s", *r.Model))
 	}
 
 	if r.Action != nil {
 		values = append(values, fmt.Sprintf("action=%s", *r.Action))
 	}
 
-	v.Add(key, strings.Join(values, ","))
+	if len(values) > 0 {
+		v.Add(key, strings.Join(values, ","))
+	}
 
 	return nil
 }
@@ -1435,6 +1446,54 @@ func (r *CustomNetworkDevice) UnmarshalJSON(b []byte) error {
 	}
 
 	r.Enabled = true
+
+	return nil
+}
+
+// UnmarshalJSON converts a CustomPCIDevice string to an object.
+func (r *CustomPCIDevice) UnmarshalJSON(b []byte) error {
+	var s string
+
+	err := json.Unmarshal(b, &s)
+
+	if err != nil {
+		return err
+	}
+
+	if s == "" {
+		return nil
+	}
+
+	pairs := strings.Split(s, ",")
+
+	for _, p := range pairs {
+		v := strings.Split(strings.TrimSpace(p), "=")
+
+		if len(v) == 1 {
+			r.DeviceIDs = strings.Split(v[0], ";")
+		} else if len(v) == 2 {
+			switch v[0] {
+			case "host":
+				r.DeviceIDs = strings.Split(v[1], ";")
+			case "legacy-igd":
+				b := CustomBool(v[1] == "1")
+				r.LegacyIGD = &b
+			case "mdev":
+				r.MediatedDevice = &v[1]
+			case "pcie":
+				b := CustomBool(v[1] == "1")
+				r.PCIExpress = &b
+			case "rombar":
+				b := CustomBool(v[1] == "1")
+				r.ROMBAR = &b
+			case "romfile":
+				r.ROMFile = &v[1]
+			case "x-vga":
+				b := CustomBool(v[1] == "1")
+				r.XVGA = &b
+			}
+		}
+	}
 
 	return nil
 }

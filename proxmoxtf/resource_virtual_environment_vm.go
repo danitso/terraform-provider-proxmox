@@ -78,7 +78,7 @@ const (
 	dvResourceVirtualEnvironmentVMPCIDevicePCIExpress               = false
 	dvResourceVirtualEnvironmentVMPCIDevicePrimaryGPU               = false
 	dvResourceVirtualEnvironmentVMPCIDeviceROMFile                  = ""
-	dvResourceVirtualEnvironmentVMPCIDeviceROMVisible               = "rom_visible"
+	dvResourceVirtualEnvironmentVMPCIDeviceROMVisible               = true
 	dvResourceVirtualEnvironmentVMPoolID                            = ""
 	dvResourceVirtualEnvironmentVMSerialDeviceDevice                = "socket"
 	dvResourceVirtualEnvironmentVMStarted                           = true
@@ -1225,6 +1225,7 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 	memory := d.Get(mkResourceVirtualEnvironmentVMMemory).([]interface{})
 	networkDevice := d.Get(mkResourceVirtualEnvironmentVMNetworkDevice).([]interface{})
 	operatingSystem := d.Get(mkResourceVirtualEnvironmentVMOperatingSystem).([]interface{})
+	pciDevice := d.Get(mkResourceVirtualEnvironmentVMPCIDevice).([]interface{})
 	serialDevice := d.Get(mkResourceVirtualEnvironmentVMSerialDevice).([]interface{})
 	onBoot := proxmox.CustomBool(d.Get(mkResourceVirtualEnvironmentVMOnBoot).(bool))
 	tabletDevice := proxmox.CustomBool(d.Get(mkResourceVirtualEnvironmentVMTabletDevice).(bool))
@@ -1410,6 +1411,18 @@ func resourceVirtualEnvironmentVMCreateClone(d *schema.ResourceData, m interface
 		operatingSystemType := operatingSystemBlock[mkResourceVirtualEnvironmentVMOperatingSystemType].(string)
 
 		updateBody.OSType = &operatingSystemType
+	}
+
+	if len(pciDevice) > 0 {
+		updateBody.PCIDevices, err = resourceVirtualEnvironmentVMGetPCIDeviceList(d, m)
+
+		if err != nil {
+			return err
+		}
+
+		for i := len(updateBody.PCIDevices); i < maxResourceVirtualEnvironmentVMPCIDevices; i++ {
+			delete = append(delete, fmt.Sprintf("hostpci%d", i))
+		}
 	}
 
 	if len(serialDevice) > 0 {
@@ -1682,6 +1695,11 @@ func resourceVirtualEnvironmentVMCreateCustom(d *schema.ResourceData, m interfac
 	}
 
 	operatingSystemType := operatingSystem[mkResourceVirtualEnvironmentVMOperatingSystemType].(string)
+	pciDevices, err := resourceVirtualEnvironmentVMGetPCIDeviceList(d, m)
+
+	if err != nil {
+		return err
+	}
 
 	poolID := d.Get(mkResourceVirtualEnvironmentVMPoolID).(string)
 
@@ -1777,6 +1795,7 @@ func resourceVirtualEnvironmentVMCreateCustom(d *schema.ResourceData, m interfac
 		KeyboardLayout:      &keyboardLayout,
 		NetworkDevices:      networkDeviceObjects,
 		OSType:              &operatingSystemType,
+		PCIDevices:          pciDevices,
 		SCSIHardware:        &scsiHardware,
 		SerialDevices:       serialDevices,
 		SharedMemory:        memorySharedObject,
@@ -2310,6 +2329,55 @@ func resourceVirtualEnvironmentVMGetOperatingSystemTypeValidator() schema.Schema
 	}, false)
 }
 
+func resourceVirtualEnvironmentVMGetPCIDeviceList(d *schema.ResourceData, m interface{}) (proxmox.CustomPCIDevices, error) {
+	entries := d.Get(mkResourceVirtualEnvironmentVMPCIDevice).([]interface{})
+	devices := make(proxmox.CustomPCIDevices, len(entries))
+
+	for i, v := range entries {
+		block := v.(map[string]interface{})
+
+		deviceIDs := block[mkResourceVirtualEnvironmentVMPCIDeviceDeviceIDs].([]interface{})
+		legacyIGD := proxmox.CustomBool(block[mkResourceVirtualEnvironmentVMPCIDeviceLegacyIGD].(bool))
+		mediatedDevice := block[mkResourceVirtualEnvironmentVMPCIDeviceMediatedDevice].(string)
+		pciExpress := proxmox.CustomBool(block[mkResourceVirtualEnvironmentVMPCIDevicePCIExpress].(bool))
+		primaryGPU := proxmox.CustomBool(block[mkResourceVirtualEnvironmentVMPCIDevicePrimaryGPU].(bool))
+		romFile := block[mkResourceVirtualEnvironmentVMPCIDeviceROMFile].(string)
+		romVisible := proxmox.CustomBool(block[mkResourceVirtualEnvironmentVMPCIDeviceROMVisible].(bool))
+
+		device := proxmox.CustomPCIDevice{}
+		device.DeviceIDs = make([]string, len(deviceIDs))
+
+		for i, v := range deviceIDs {
+			device.DeviceIDs[i] = v.(string)
+		}
+
+		if legacyIGD {
+			device.LegacyIGD = &legacyIGD
+		}
+
+		if mediatedDevice != "" {
+			device.MediatedDevice = &mediatedDevice
+		}
+
+		if pciExpress {
+			device.PCIExpress = &pciExpress
+		}
+
+		if romFile != "" {
+			device.ROMBAR = &romVisible
+			device.ROMFile = &romFile
+		}
+
+		if primaryGPU {
+			device.XVGA = &primaryGPU
+		}
+
+		devices[i] = device
+	}
+
+	return devices, nil
+}
+
 func resourceVirtualEnvironmentVMGetSerialDeviceList(d *schema.ResourceData, m interface{}) (proxmox.CustomSerialDevices, error) {
 	device := d.Get(mkResourceVirtualEnvironmentVMSerialDevice).([]interface{})
 	list := make(proxmox.CustomSerialDevices, len(device))
@@ -2490,7 +2558,7 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 	// Compare the audio devices to those stored in the state.
 	currentAudioDevice := d.Get(mkResourceVirtualEnvironmentVMAudioDevice).([]interface{})
 
-	audioDevices := make([]interface{}, 1)
+	audioDevices := make([]interface{}, maxResourceVirtualEnvironmentVMAudioDevices)
 	audioDevicesArray := []*proxmox.CustomAudioDevice{
 		vmConfig.AudioDevice,
 	}
@@ -2925,9 +2993,9 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 	// Compare the network devices to those stored in the state.
 	currentNetworkDeviceList := d.Get(mkResourceVirtualEnvironmentVMNetworkDevice).([]interface{})
 
-	macAddresses := make([]interface{}, 8)
+	macAddresses := make([]interface{}, maxResourceVirtualEnvironmentVMNetworkDevices)
 	networkDeviceLast := -1
-	networkDeviceList := make([]interface{}, 8)
+	networkDeviceList := make([]interface{}, maxResourceVirtualEnvironmentVMNetworkDevices)
 	networkDeviceObjects := []*proxmox.CustomNetworkDevice{
 		vmConfig.NetworkDevice0,
 		vmConfig.NetworkDevice1,
@@ -3016,6 +3084,82 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 		d.Set(mkResourceVirtualEnvironmentVMOperatingSystem, []interface{}{})
 	}
 
+	// Compare the PCI devices to those stored in the state.
+	pciDevices := make([]interface{}, maxResourceVirtualEnvironmentVMPCIDevices)
+	pciDevicesArray := []*proxmox.CustomPCIDevice{
+		vmConfig.PCIDevice0,
+		vmConfig.PCIDevice1,
+		vmConfig.PCIDevice2,
+		vmConfig.PCIDevice3,
+		vmConfig.PCIDevice4,
+		vmConfig.PCIDevice5,
+		vmConfig.PCIDevice6,
+		vmConfig.PCIDevice7,
+	}
+	pciDevicesCount := 0
+
+	for pdi, pd := range pciDevicesArray {
+		m := map[string]interface{}{}
+
+		if pd != nil {
+			m[mkResourceVirtualEnvironmentVMPCIDeviceDeviceIDs] = pd.DeviceIDs
+
+			if pd.LegacyIGD != nil {
+				m[mkResourceVirtualEnvironmentVMPCIDeviceLegacyIGD] = bool(*pd.LegacyIGD)
+			} else {
+				m[mkResourceVirtualEnvironmentVMPCIDeviceLegacyIGD] = false
+			}
+
+			if pd.MediatedDevice != nil {
+				m[mkResourceVirtualEnvironmentVMPCIDeviceMediatedDevice] = *pd.MediatedDevice
+			} else {
+				m[mkResourceVirtualEnvironmentVMPCIDeviceMediatedDevice] = ""
+			}
+
+			if pd.PCIExpress != nil {
+				m[mkResourceVirtualEnvironmentVMPCIDevicePCIExpress] = bool(*pd.PCIExpress)
+			} else {
+				m[mkResourceVirtualEnvironmentVMPCIDevicePCIExpress] = false
+			}
+
+			if pd.XVGA != nil {
+				m[mkResourceVirtualEnvironmentVMPCIDevicePrimaryGPU] = bool(*pd.XVGA)
+			} else {
+				m[mkResourceVirtualEnvironmentVMPCIDevicePrimaryGPU] = false
+			}
+
+			if pd.ROMFile != nil {
+				m[mkResourceVirtualEnvironmentVMPCIDeviceROMFile] = *pd.ROMFile
+			} else {
+				m[mkResourceVirtualEnvironmentVMPCIDeviceROMFile] = ""
+			}
+
+			if pd.ROMBAR != nil {
+				m[mkResourceVirtualEnvironmentVMPCIDeviceROMVisible] = bool(*pd.ROMBAR)
+			} else {
+				m[mkResourceVirtualEnvironmentVMPCIDeviceROMVisible] = false
+			}
+
+			pciDevicesCount = pdi + 1
+		} else {
+			m[mkResourceVirtualEnvironmentVMPCIDeviceDeviceIDs] = []interface{}{}
+			m[mkResourceVirtualEnvironmentVMPCIDeviceLegacyIGD] = false
+			m[mkResourceVirtualEnvironmentVMPCIDeviceMediatedDevice] = ""
+			m[mkResourceVirtualEnvironmentVMPCIDevicePCIExpress] = false
+			m[mkResourceVirtualEnvironmentVMPCIDevicePrimaryGPU] = false
+			m[mkResourceVirtualEnvironmentVMPCIDeviceROMFile] = ""
+			m[mkResourceVirtualEnvironmentVMPCIDeviceROMVisible] = false
+		}
+
+		pciDevices[pdi] = m
+	}
+
+	currentPCIDevice := d.Get(mkResourceVirtualEnvironmentVMPCIDevice).([]interface{})
+
+	if len(clone) == 0 || len(currentPCIDevice) > 0 {
+		d.Set(mkResourceVirtualEnvironmentVMPCIDevice, pciDevices[:pciDevicesCount])
+	}
+
 	// Compare the pool ID to the value stored in the state.
 	currentPoolID := d.Get(mkResourceVirtualEnvironmentVMPoolID).(string)
 
@@ -3026,7 +3170,7 @@ func resourceVirtualEnvironmentVMReadCustom(d *schema.ResourceData, m interface{
 	}
 
 	// Compare the serial devices to those stored in the state.
-	serialDevices := make([]interface{}, 4)
+	serialDevices := make([]interface{}, maxResourceVirtualEnvironmentVMSerialDevices)
 	serialDevicesArray := []*string{
 		vmConfig.SerialDevice0,
 		vmConfig.SerialDevice1,
@@ -3623,6 +3767,21 @@ func resourceVirtualEnvironmentVMUpdate(d *schema.ResourceData, m interface{}) e
 		operatingSystemType := operatingSystem[mkResourceVirtualEnvironmentVMOperatingSystemType].(string)
 
 		updateBody.OSType = &operatingSystemType
+
+		rebootRequired = true
+	}
+
+	// Prepare the new PCI devices.
+	if d.HasChange(mkResourceVirtualEnvironmentVMPCIDevice) {
+		updateBody.PCIDevices, err = resourceVirtualEnvironmentVMGetPCIDeviceList(d, m)
+
+		if err != nil {
+			return err
+		}
+
+		for i := len(updateBody.PCIDevices); i < maxResourceVirtualEnvironmentVMPCIDevices; i++ {
+			delete = append(delete, fmt.Sprintf("hostpci%d", i))
+		}
 
 		rebootRequired = true
 	}
