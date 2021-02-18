@@ -10,6 +10,7 @@ ENHANCEMENTS:
 * data-source/virtual_environment_users: Add `tokens` attribute
 * provider/configuration: Add `virtual_environment.token` argument for API token support
 * resource/virtual_environment_user: Add `tokens` attribute
+* resource/virtual_environment_vm: Add `agent.prefixes` argument
 
 BUG FIXES:
 

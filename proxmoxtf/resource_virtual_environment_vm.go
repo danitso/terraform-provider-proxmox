@@ -98,6 +98,7 @@ const (
 	mkResourceVirtualEnvironmentVMACPI                              = "acpi"
 	mkResourceVirtualEnvironmentVMAgent                             = "agent"
 	mkResourceVirtualEnvironmentVMAgentEnabled                      = "enabled"
+	mkResourceVirtualEnvironmentVMAgentPrefixes                     = "prefixes"
 	mkResourceVirtualEnvironmentVMAgentTimeout                      = "timeout"
 	mkResourceVirtualEnvironmentVMAgentTrim                         = "trim"
 	mkResourceVirtualEnvironmentVMAgentType                         = "type"
@@ -192,6 +193,16 @@ const (
 	mkResourceVirtualEnvironmentVMVMID                              = "vm_id"
 )
 
+var (
+	dvResourceVirtualEnvironmentVMAgentPrefixes = []interface{}{
+		"eno",
+		"enp",
+		"ens",
+		"eth",
+		"tun",
+	}
+)
+
 func resourceVirtualEnvironmentVM() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -220,10 +231,11 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 				DefaultFunc: func() (interface{}, error) {
 					return []interface{}{
 						map[string]interface{}{
-							mkResourceVirtualEnvironmentVMAgentEnabled: dvResourceVirtualEnvironmentVMAgentEnabled,
-							mkResourceVirtualEnvironmentVMAgentTimeout: dvResourceVirtualEnvironmentVMAgentTimeout,
-							mkResourceVirtualEnvironmentVMAgentTrim:    dvResourceVirtualEnvironmentVMAgentEnabled,
-							mkResourceVirtualEnvironmentVMAgentType:    dvResourceVirtualEnvironmentVMAgentType,
+							mkResourceVirtualEnvironmentVMAgentEnabled:  dvResourceVirtualEnvironmentVMAgentEnabled,
+							mkResourceVirtualEnvironmentVMAgentPrefixes: dvResourceVirtualEnvironmentVMAgentPrefixes,
+							mkResourceVirtualEnvironmentVMAgentTimeout:  dvResourceVirtualEnvironmentVMAgentTimeout,
+							mkResourceVirtualEnvironmentVMAgentTrim:     dvResourceVirtualEnvironmentVMAgentEnabled,
+							mkResourceVirtualEnvironmentVMAgentType:     dvResourceVirtualEnvironmentVMAgentType,
 						},
 					}, nil
 				},
@@ -234,6 +246,15 @@ func resourceVirtualEnvironmentVM() *schema.Resource {
 							Description: "Whether to enable the QEMU agent",
 							Optional:    true,
 							Default:     dvResourceVirtualEnvironmentVMAgentEnabled,
+						},
+						mkResourceVirtualEnvironmentVMAgentPrefixes: {
+							Type:        schema.TypeList,
+							Description: "The prefixes for the network interfaces which need to have an IP assigned before continuing",
+							Optional:    true,
+							DefaultFunc: func() (interface{}, error) {
+								return dvResourceVirtualEnvironmentVMAgentPrefixes, nil
+							},
+							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						mkResourceVirtualEnvironmentVMAgentTimeout: {
 							Type:         schema.TypeString,
@@ -3056,14 +3077,21 @@ func resourceVirtualEnvironmentVMReadNetworkValues(d *schema.ResourceData, m int
 				return err
 			}
 
+			agentPrefixes := agentBlock[mkResourceVirtualEnvironmentVMAgentPrefixes].([]interface{})
 			agentTimeout, err := time.ParseDuration(agentBlock[mkResourceVirtualEnvironmentVMAgentTimeout].(string))
 
 			if err != nil {
 				return err
 			}
 
+			interfacePrefixes := make([]string, len(agentPrefixes))
+
+			for i, v := range agentPrefixes {
+				interfacePrefixes[i] = v.(string)
+			}
+
 			macAddresses := []interface{}{}
-			networkInterfaces, err := veClient.WaitForNetworkInterfacesFromVMAgent(nodeName, vmID, int(agentTimeout.Seconds()), 5, true)
+			networkInterfaces, err := veClient.WaitForNetworkInterfacesFromVMAgent(nodeName, vmID, int(agentTimeout.Seconds()), 5, true, interfacePrefixes)
 
 			if err == nil && networkInterfaces.Result != nil {
 				ipv4Addresses = make([]interface{}, len(*networkInterfaces.Result))
