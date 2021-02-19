@@ -263,6 +263,14 @@ output "ubuntu_vm_public_key" {
         * `win10` - Windows 10 or 2016.
         * `wvista` - Windows Vista.
         * `wxp` - Windows XP.
+* `pci_device` - (Optional) A PCI device to pass through to the guest (multiple blocks supported).
+    * `device_ids` - (Required) The device identifiers.
+    * `legacy_igd` - (Optional) Whether to treat the device as a legacy Integrated Graphics Device (defaults to `false`).
+    * `mediated_device` - (Optional) The mediated device property.
+    * `pci_express` - (Optional) Whether to expose the device on a PCI Express port (defaults to `false`).
+    * `primary_gpu` - (Optional) Whether to mark the device as the primary GPU (defaults to `false`).
+    * `rom_file` - (Optional) The path to a ROM file relative to `/usr/share/kvm/`.
+    * `rom_visible` - (Optional) Whether to make the ROM visible for the guest (defaults to `true`).
 * `pool_id` - (Optional) The identifier for a pool to assign the virtual machine to.
 * `reboot` - (Optional) Reboot the VM after initial creation. (defaults to `false`)
 * `serial_device` - (Optional) A serial device (multiple blocks supported).
