@@ -317,6 +317,31 @@ func TestResourceVirtualEnvironmentVMSchema(t *testing.T) {
 		mkResourceVirtualEnvironmentVMOperatingSystemType: schema.TypeString,
 	})
 
+	pciDeviceSchema := testNestedSchemaExistence(t, s, mkResourceVirtualEnvironmentVMPCIDevice)
+
+	testRequiredArguments(t, pciDeviceSchema, []string{
+		mkResourceVirtualEnvironmentVMPCIDeviceDeviceIDs,
+	})
+
+	testOptionalArguments(t, pciDeviceSchema, []string{
+		mkResourceVirtualEnvironmentVMPCIDeviceLegacyIGD,
+		mkResourceVirtualEnvironmentVMPCIDeviceMediatedDevice,
+		mkResourceVirtualEnvironmentVMPCIDevicePCIExpress,
+		mkResourceVirtualEnvironmentVMPCIDevicePrimaryGPU,
+		mkResourceVirtualEnvironmentVMPCIDeviceROMFile,
+		mkResourceVirtualEnvironmentVMPCIDeviceROMVisible,
+	})
+
+	testValueTypes(t, pciDeviceSchema, map[string]schema.ValueType{
+		mkResourceVirtualEnvironmentVMPCIDeviceDeviceIDs:      schema.TypeList,
+		mkResourceVirtualEnvironmentVMPCIDeviceLegacyIGD:      schema.TypeBool,
+		mkResourceVirtualEnvironmentVMPCIDeviceMediatedDevice: schema.TypeString,
+		mkResourceVirtualEnvironmentVMPCIDevicePCIExpress:     schema.TypeBool,
+		mkResourceVirtualEnvironmentVMPCIDevicePrimaryGPU:     schema.TypeBool,
+		mkResourceVirtualEnvironmentVMPCIDeviceROMFile:        schema.TypeString,
+		mkResourceVirtualEnvironmentVMPCIDeviceROMVisible:     schema.TypeBool,
+	})
+
 	serialDeviceSchema := testNestedSchemaExistence(t, s, mkResourceVirtualEnvironmentVMSerialDevice)
 
 	testOptionalArguments(t, serialDeviceSchema, []string{
