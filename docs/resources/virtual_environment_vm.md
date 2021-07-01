@@ -181,7 +181,7 @@ output "ubuntu_vm_public_key" {
         * `raw` - Raw Disk Image.
         * `vmdk` - VMware Disk Image.
     * `file_id` - (Optional) The file ID for a disk image (experimental - might cause high CPU utilization during import, especially with large disk images).
-    * `interface` - (Required) The disk interface for Proxmox, currently scsi, sata and virtio are supported.
+    * `interface` - (Required) The disk interface for Proxmox, currently scsi0, sata0 and virtio0 are supported.
     * `size` - (Optional) The disk size in gigabytes (defaults to `8`).
     * `speed` - (Optional) The speed limits.
         * `read` - (Optional) The maximum read speed in megabytes per second.
