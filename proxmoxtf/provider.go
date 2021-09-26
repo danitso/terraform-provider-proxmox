@@ -18,6 +18,7 @@ const (
 	dvProviderVirtualEnvironmentOTP      = ""
 	dvProviderVirtualEnvironmentPassword = ""
 	dvProviderVirtualEnvironmentUsername = ""
+	dvProviderVirtualEnvironmentSSHPort  = 0
 
 	mkProviderVirtualEnvironment         = "virtual_environment"
 	mkProviderVirtualEnvironmentEndpoint = "endpoint"
@@ -25,6 +26,7 @@ const (
 	mkProviderVirtualEnvironmentOTP      = "otp"
 	mkProviderVirtualEnvironmentPassword = "password"
 	mkProviderVirtualEnvironmentUsername = "username"
+	mkProviderVirtualEnvironmentSSHPort  = "22"
 )
 
 type providerConfiguration struct {
@@ -127,6 +129,15 @@ func Provider() *schema.Provider {
 								dvProviderVirtualEnvironmentOTP,
 							),
 						},
+						mkProviderVirtualEnvironmentSSHPort: {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The ssh port used to connect to the proxmox server",
+							DefaultFunc: schema.MultiEnvDefaultFunc(
+								[]string{"PROXMOX_VE_SSH_PORT", "PM_VE_SSH_PORT"},
+								dvProviderVirtualEnvironmentSSHPort,
+							),
+						},
 						mkProviderVirtualEnvironmentPassword: {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -191,6 +202,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			veConfig[mkProviderVirtualEnvironmentPassword].(string),
 			veConfig[mkProviderVirtualEnvironmentOTP].(string),
 			veConfig[mkProviderVirtualEnvironmentInsecure].(bool),
+			veConfig[mkProviderVirtualEnvironmentSSHPort].(int),
 		)
 
 		if err != nil {

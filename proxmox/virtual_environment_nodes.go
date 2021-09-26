@@ -161,7 +161,7 @@ func (c *VirtualEnvironmentClient) OpenNodeShell(nodeName string) (*ssh.Client, 
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	sshClient, err := ssh.Dial("tcp", *nodeAddress+":22", sshConfig)
+	sshClient, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", *nodeAddress, c.sshPort), sshConfig)
 
 	if err != nil {
 		return nil, err

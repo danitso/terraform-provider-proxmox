@@ -21,7 +21,7 @@ import (
 )
 
 // NewVirtualEnvironmentClient creates and initializes a VirtualEnvironmentClient instance.
-func NewVirtualEnvironmentClient(endpoint, username, password, otp string, insecure bool) (*VirtualEnvironmentClient, error) {
+func NewVirtualEnvironmentClient(endpoint, username, password, otp string, insecure bool, sshPort int) (*VirtualEnvironmentClient, error) {
 	url, err := url.ParseRequestURI(endpoint)
 
 	if err != nil {
@@ -60,6 +60,7 @@ func NewVirtualEnvironmentClient(endpoint, username, password, otp string, insec
 		OTP:        pOTP,
 		Password:   password,
 		Username:   username,
+		sshPort:    sshPort,
 		httpClient: httpClient,
 	}, nil
 }

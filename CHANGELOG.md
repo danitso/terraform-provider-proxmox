@@ -1,3 +1,9 @@
+## [Unreleased]
+
+OTHER:
+
+* add configration argument to specify custom ssh port [@the-technat](https://github.com/the-technat)
+
 ## v0.4.4
 
 BUG FIXES:
