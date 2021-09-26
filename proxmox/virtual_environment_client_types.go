@@ -25,6 +25,7 @@ type VirtualEnvironmentClient struct {
 	OTP      *string
 	Password string
 	Username string
+	sshPort  int
 
 	authenticationData *VirtualEnvironmentAuthenticationResponseData
 	httpClient         *http.Client
