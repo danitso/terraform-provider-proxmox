@@ -485,7 +485,7 @@ type VirtualEnvironmentVMGetStatusResponseData struct {
 	Status           string      `json:"status,omitempty"`
 	Tags             *string     `json:"tags,omitempty"`
 	Uptime           *int        `json:"uptime,omitempty"`
-	VMID             string      `json:"vmid,omitempty"`
+	VMID             int         `json:"vmid,omitempty"`
 }
 
 // VirtualEnvironmentVMListResponseBody contains the body from an virtual machine list response.
