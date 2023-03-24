@@ -79,4 +79,4 @@ resource "proxmox_virtual_environment_vm" "example" {
 ```
 
 ### Snippets cannot be uploaded by non-PAM accounts
-Due to limitations in the Proxmox VE API, certain files need to be uploaded using SFTP. This requires the use of a PAM account (standard Linux account).
+Due to limitations in the Proxmox VE API, certain files need to be uploaded using SFTP. This requires the use of a PAM account (standard Linux account) or use of ssh public key authentication.
